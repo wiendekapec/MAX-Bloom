@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MAX Bloom — прототип v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-1:#0F211C; --bg-2:#173229;
+  --glass:rgba(255,255,255,.07); --glass-b:rgba(255,255,255,.14);
+  --bloom:#FF6F8E; --bloom-2:#FFB199; --sage:#9FD8B5;
+  --text:#F3F6F4; --muted:#9FB3AC; --radius:20px;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;background:var(--bg-1);}
+body{font-family:'Manrope',system-ui,sans-serif; color:var(--text); background:radial-gradient(120% 90% at 50% -10%, var(--bg-2), var(--bg-1)); -webkit-font-smoothing:antialiased; display:flex; justify-content:center;}
+.app{width:100%; max-width:430px; min-height:100vh; position:relative; display:flex; flex-direction:column;}
+h1,h2,h3{font-family:'Unbounded',sans-serif; margin:0;}
+.bar{display:flex; align-items:center; gap:12px; padding:calc(env(safe-area-inset-top,0px) + 16px) 20px 10px; position:sticky; top:0; z-index:5; background:linear-gradient(var(--bg-1) 70%, transparent);}
+.bar button.back{width:36px; height:36px; border-radius:50%; border:1px solid var(--glass-b); background:var(--glass); color:var(--text); font-size:16px; cursor:pointer;}
+.screen{display:none; flex:1; flex-direction:column; padding:0 20px 110px; overflow-y:auto;}
+.screen.active{display:flex;}
+.card{background:var(--glass); border:1px solid var(--glass-b); border-radius:var(--radius); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); padding:16px; margin-bottom:14px;}
+
+.roleswitch{display:flex; gap:6px; padding:14px 20px 4px;}
+.roleswitch button{flex:1; padding:10px; border-radius:12px; border:1px solid var(--glass-b); background:var(--glass); color:var(--muted); font-weight:700; font-size:13px; cursor:pointer;}
+.roleswitch button.on{background:var(--bloom); color:#26121A; border-color:var(--bloom);}
+
+.stat-row{display:flex; gap:10px; margin-bottom:14px;}
+.stat{flex:1; text-align:left;}
+.stat .val{font-family:'Unbounded',sans-serif; font-size:22px; color:var(--sage);}
+.stat .lbl{font-size:11.5px; color:var(--muted); margin-top:4px;}
+.section-title{font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin:18px 0 8px;}
+.pay-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-b);}
+.pay-row:last-child{border-bottom:none;}
+.pay-row .who{font-size:14px; font-weight:600;}
+.pay-row .when{font-size:11.5px; color:var(--muted);}
+.pay-row .amt{font-weight:700; color:var(--sage); font-size:14px;}
+.plan-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-b);}
+.plan-row:last-child{border-bottom:none;}
+.toggle{width:38px; height:22px; border-radius:20px; background:var(--sage); position:relative; cursor:pointer; flex:0 0 38px;}
+.toggle.off{background:rgba(255,255,255,.18);}
+.toggle .knob{width:18px; height:18px; border-radius:50%; background:#0F211C; position:absolute; top:2px; right:2px; transition:.15s;}
+.toggle.off .knob{right:auto; left:2px;}
+.export-btn{width:100%; padding:14px; border-radius:16px; border:1px dashed var(--glass-b); background:transparent; color:var(--sage); font-weight:700; font-size:14px; cursor:pointer; margin-top:6px;}
+.fab{position:fixed; right:20px; bottom:calc(env(safe-area-inset-bottom,0px) + 20px); width:52px; height:52px; border-radius:50%; background:var(--bloom); border:none; color:#26121A; font-size:24px; cursor:pointer; box-shadow:0 8px 24px rgba(255,111,142,.35); z-index:10;}
+.toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:#1c332c; border:1px solid var(--glass-b); padding:10px 18px; border-radius:100px; font-size:13px; opacity:0; transition:.2s; pointer-events:none; z-index:20;}
+.toast.show{opacity:1;}
+
+.field{margin-bottom:14px;}
+.field label{font-size:12.5px; color:var(--muted); display:block; margin-bottom:6px;}
+.field input, .field select{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--glass-b); background:var(--glass); color:var(--text); font-size:14px; font-family:'Manrope',sans-serif;}
+.period-chips{display:flex; gap:8px; flex-wrap:wrap;}
+.period-chips .chip{padding:9px 14px; border-radius:100px; font-size:13px; font-weight:600; background:var(--glass); border:1px solid var(--glass-b); color:var(--muted); cursor:pointer;}
+.period-chips .chip.on{background:var(--bloom); color:#26121A; border-color:var(--bloom);}
+.checkbox-row{display:flex; gap:10px; align-items:flex-start; margin:16px 0; font-size:12.5px; color:var(--muted); line-height:1.5;}
+.checkbox-row input{margin-top:2px;}
+
+.avatar{width:52px; height:52px; border-radius:16px; flex:0 0 52px; display:flex; align-items:center; justify-content:center; font-size:22px; background:linear-gradient(135deg, var(--bloom), var(--sage));}
+.hero-band{height:110px; border-radius:var(--radius); margin-bottom:16px; background:linear-gradient(135deg, var(--bloom-2), var(--bloom) 60%, var(--sage)); display:flex; align-items:flex-end; padding:16px; font-size:36px;}
+.plan{display:flex; justify-content:space-between; align-items:center; cursor:pointer; border:1px solid var(--glass-b);}
+.plan.selected{border-color:var(--bloom); background:rgba(255,111,142,.1);}
+.plan .p-title{font-weight:700; font-size:15px;}
+.plan .p-desc{font-size:12.5px; color:var(--muted); margin-top:4px;}
+.plan .p-price{font-weight:700; color:var(--sage); font-size:15px;}
+.sum-row{display:flex; justify-content:space-between; font-size:14px; padding:8px 0; color:var(--muted);}
+.sum-row.total{color:var(--text); font-weight:700; font-size:16px; border-top:1px solid var(--glass-b); margin-top:6px; padding-top:14px;}
+#success{align-items:center; text-align:center; justify-content:center;}
+.check{width:76px; height:76px; border-radius:50%; background:var(--sage); color:#0F211C; font-size:34px; display:flex; align-items:center; justify-content:center; margin-bottom:18px;}
+.link-box{width:100%; font-size:12.5px; word-break:break-all; color:var(--sage); font-family:monospace; text-align:left;}
+
+.mainbtn-wrap{position:fixed; left:0; right:0; bottom:0; display:flex; justify-content:center; padding:14px 20px calc(env(safe-area-inset-bottom,0px) + 16px); background:linear-gradient(transparent, var(--bg-1) 40%); z-index:10;}
+.mainbtn{width:100%; max-width:390px; border:none; border-radius:16px; padding:16px; background:var(--bloom); color:#26121A; font-weight:700; font-size:15px; font-family:'Manrope',sans-serif; cursor:pointer;}
+.mainbtn:active{transform:scale(.97);}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="roleswitch">
+    <button id="rc" class="on" onclick="setRole('creator')">👑 Кабинет крейтора</button>
+    <button id="rb" onclick="setRole('buyer')">🛍 Витрина покупателя</button>
+  </div>
+
+  <section id="dashboard" class="screen active">
+    <div class="stat-row">
+      <div class="stat card"><div class="val">18 400 ₽</div><div class="lbl">Выручка за 30 дней</div></div>
+      <div class="stat card"><div class="val">23</div><div class="lbl">Активных подписчиков</div></div>
+    </div>
+
+    <div class="section-title">Тарифы</div>
+    <div class="card">
+      <div class="plan-row">
+        <div><div style="font-weight:700; font-size:14px;">Базовый — 990 ₽/30д</div><div style="font-size:12px; color:var(--muted);">14 подписчиков</div></div>
+        <div class="toggle" onclick="this.classList.toggle('off')"><div class="knob"></div></div>
+      </div>
+      <div class="plan-row">
+        <div><div style="font-weight:700; font-size:14px;">Pro с менторством — 2990 ₽/30д</div><div style="font-size:12px; color:var(--muted);">9 подписчиков</div></div>
+        <div class="toggle" onclick="this.classList.toggle('off')"><div class="knob"></div></div>
+      </div>
+    </div>
+
+    <div class="section-title">Последние платежи</div>
+    <div class="card" id="payList"></div>
+
+    <button class="export-btn" onclick="toast('Экспорт .xlsx — сгенерирован')">⬇ Экспорт в Excel</button>
+    <button class="fab" onclick="go('newplan')">+</button>
+  </section>
+
+  <section id="newplan" class="screen">
+    <div class="bar" style="position:static; padding:0 0 12px;"><button class="back" onclick="back()">←</button><h2 style="font-size:18px;">Новый тариф</h2></div>
+    <div class="field"><label>Название тарифа</label><input type="text" placeholder="Например, Pro"></div>
+    <div class="field"><label>Цена, ₽</label><input type="number" placeholder="990"></div>
+    <div class="field">
+      <label>Период доступа</label>
+      <div class="period-chips">
+        <div class="chip" onclick="pickPeriod(this)">7 дней</div>
+        <div class="chip on" onclick="pickPeriod(this)">30 дней</div>
+        <div class="chip" onclick="pickPeriod(this)">90 дней</div>
+        <div class="chip" onclick="pickPeriod(this)">Разово</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="selfEmp"><label for="selfEmp">Подтверждаю, что зарегистрирован как самозанятый/ИП/ООО и несу ответственность за легальность приёма платежей</label></div>
+    <div class="mainbtn-wrap" style="position:static; padding:6px 0 0;"><button class="mainbtn" onclick="createPlan()">Создать тариф</button></div>
+  </section>
+
+  <section id="detail" class="screen">
+    <div class="bar" style="position:static; padding:0 0 12px;"><button class="back" onclick="setRole('creator')">←</button></div>
+    <div class="hero-band">👨‍💻</div>
+    <h2 style="font-size:20px;">IT Mentor Club</h2>
+    <p style="color:var(--muted); font-size:13.5px; margin:8px 0 16px;">Разборы задач, код-ревью и закрытые воркшопы для разработчиков.</p>
+    <div class="card plan selected" onclick="selPlan(this)"><div><div class="p-title">Базовый</div><div class="p-desc">Доступ ко всем материалам</div></div><div class="p-price">990 ₽</div></div>
+    <div class="card plan" onclick="selPlan(this)"><div><div class="p-title">Pro с менторством</div><div class="p-desc">+ 1 созвон-разбор</div></div><div class="p-price">2990 ₽</div></div>
+    <div class="mainbtn-wrap" style="position:static; padding:10px 0 0;"><button class="mainbtn" onclick="go('checkout')">Продолжить</button></div>
+  </section>
+
+  <section id="checkout" class="screen">
+    <div class="bar" style="position:static; padding:0 0 12px;"><button class="back" onclick="back()">←</button></div>
+    <div class="card">
+      <div style="font-weight:700; font-size:16px;">Базовый — IT Mentor Club</div>
+      <div class="sum-row"><span>Тариф, 30 дней</span><span>990 ₽</span></div>
+      <div class="sum-row total"><span>К оплате</span><span>990 ₽</span></div>
+      <span style="display:inline-flex; gap:6px; font-size:12px; color:var(--sage); background:rgba(159,216,181,.12); padding:6px 10px; border-radius:100px; margin-top:10px;">⚡ СБП (sandbox)</span>
+    </div>
+    <div class="mainbtn-wrap" style="position:static; padding:10px 0 0;"><button class="mainbtn" onclick="pay()">Оплатить через СБП</button></div>
+  </section>
+
+  <section id="success" class="screen">
+    <div class="check">✓</div>
+    <h2 style="font-size:20px;">Оплата прошла!</h2>
+    <p style="color:var(--muted); font-size:13.5px; margin:10px 0 20px;">Вы подписаны на <b>IT Mentor Club</b>. Ссылка на канал — в личке.</p>
+    <div class="card link-box">https://bloom.example/i/7f3a...<br><span style="color:var(--muted);">одноразовая · 24 часа</span></div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800);}
+const PAYMENTS = [
+  {who:'IT Mentor Club — Pro', when:'сегодня, 14:02', amt:'2990 ₽'},
+  {who:'IT Mentor Club — Базовый', when:'вчера, 09:15', amt:'990 ₽'},
+  {who:'IT Mentor Club — Базовый', when:'2 дня назад', amt:'990 ₽'},
+];
+document.getElementById('payList').innerHTML = PAYMENTS.map(p=>`<div class="pay-row"><div><div class="who">${p.who}</div><div class="when">${p.when}</div></div><div class="amt">${p.amt}</div></div>`).join('');
+
+const STACK=['dashboard'];
+function go(name){STACK.push(name); render();}
+function back(){STACK.pop(); render();}
+function render(){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===STACK[STACK.length-1]));}
+function setRole(r){
+  document.getElementById('rc').classList.toggle('on', r==='creator');
+  document.getElementById('rb').classList.toggle('on', r==='buyer');
+  STACK.length=0; STACK.push(r==='creator'?'dashboard':'detail'); render();
+}
+function pickPeriod(el){document.querySelectorAll('.period-chips .chip').forEach(c=>c.classList.remove('on')); el.classList.add('on');}
+function createPlan(){
+  if(!document.getElementById('selfEmp').checked){toast('Подтвердите статус самозанятого'); return;}
+  toast('Тариф создан'); back();
+}
+function selPlan(el){document.querySelectorAll('#detail .plan').forEach(p=>p.classList.remove('selected')); el.classList.add('selected');}
+function pay(){if(navigator.vibrate) navigator.vibrate(20); go('success');}
+render();
+</script>
+</body>
+</html>

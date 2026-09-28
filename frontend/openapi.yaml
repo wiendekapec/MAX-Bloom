@@ -1,0 +1,504 @@
+openapi: 3.1.0
+info:
+  title: MAX Bloom API
+  version: 1.0.0
+  description: |
+    REST API для мини-приложения MAX Bloom.
+    Авторизация: заголовок `X-Init-Data` (initData от MAX Mini App SDK, проверяется HMAC-SHA256 на бэкенде).
+    Ошибки: RFC 7807 Problem+JSON (`application/problem+json`).
+
+    > Интеграция с ЮKassa используется в тестовом режиме (sandbox). Реальные списания не происходят.
+
+servers:
+  - url: /api/v1
+    description: Production / Docker Compose
+
+security:
+  - InitData: []
+
+components:
+  securitySchemes:
+    InitData:
+      type: apiKey
+      in: header
+      name: X-Init-Data
+      description: MAX initData строка, верифицируется HMAC-SHA256
+
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        code: { type: string }
+      required: [status, detail, code]
+
+    Community:
+      type: object
+      properties:
+        id: { type: integer }
+        creatorId: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        category:
+          type: string
+          enum: [business, education, fitness, tech, services]
+        avatarUrl: { type: string, nullable: true }
+        subscribersCount: { type: integer }
+        plans:
+          type: array
+          items: { $ref: '#/components/schemas/SubscriptionPlan' }
+        isDemo: { type: boolean }
+      required: [id, title, description, category, subscribersCount, plans]
+
+    SubscriptionPlan:
+      type: object
+      properties:
+        id: { type: integer }
+        communityId: { type: integer }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        priceRub:
+          type: number
+          format: decimal
+        periodDays:
+          type: integer
+          enum: [0, 7, 30, 90]
+          description: "0 = разово"
+        isActive: { type: boolean }
+        subscribersCount: { type: integer }
+      required: [id, communityId, title, priceRub, periodDays, isActive]
+
+    Payment:
+      type: object
+      properties:
+        id: { type: integer }
+        idempotencyKey: { type: string, format: uuid }
+        userId: { type: integer }
+        planId: { type: integer }
+        planTitle: { type: string }
+        communityTitle: { type: string }
+        amountRub: { type: number }
+        platformFeeRub: { type: number }
+        status:
+          type: string
+          enum: [PENDING, SUCCEEDED, CANCELED]
+        receiptSent: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      required: [id, idempotencyKey, amountRub, status, createdAt]
+
+    Subscription:
+      type: object
+      properties:
+        id: { type: integer }
+        communityId: { type: integer }
+        communityTitle: { type: string }
+        planId: { type: integer }
+        planTitle: { type: string }
+        priceRub: { type: number }
+        status:
+          type: string
+          enum: [ACTIVE, EXPIRED, CANCELED]
+        startsAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        daysLeft: { type: integer }
+      required: [id, communityId, planId, status, startsAt, expiresAt, daysLeft]
+
+    DashboardData:
+      type: object
+      properties:
+        communityId: { type: integer }
+        communityTitle: { type: string }
+        revenueTotal: { type: number }
+        revenueMonth: { type: number }
+        activeSubscribers: { type: integer }
+        plans:
+          type: array
+          items: { $ref: '#/components/schemas/SubscriptionPlanExtended' }
+        recentPayments:
+          type: array
+          items: { $ref: '#/components/schemas/Payment' }
+      required: [revenueTotal, revenueMonth, activeSubscribers, plans, recentPayments]
+
+    SubscriptionPlanExtended:
+      allOf:
+        - $ref: '#/components/schemas/SubscriptionPlan'
+        - type: object
+          properties:
+            subscribersCount: { type: integer }
+            revenueTotal: { type: number }
+
+    CreatePaymentRequest:
+      type: object
+      properties:
+        planId: { type: integer }
+      required: [planId]
+
+    CreatePaymentResponse:
+      type: object
+      properties:
+        paymentId: { type: string }
+        confirmationUrl: { type: string, format: uri }
+      required: [paymentId, confirmationUrl]
+
+    PaymentStatusResponse:
+      type: object
+      properties:
+        paymentId: { type: string }
+        status:
+          type: string
+          enum: [PENDING, SUCCEEDED, CANCELED]
+        inviteUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: "https://bloom.example/i/{token} — выдаётся только при SUCCEEDED"
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+      required: [paymentId, status]
+
+    CreatePlanRequest:
+      type: object
+      properties:
+        title: { type: string, maxLength: 128 }
+        description: { type: string, maxLength: 500, nullable: true }
+        priceRub:
+          type: number
+          minimum: 1
+          maximum: 999999
+        periodDays:
+          type: integer
+          enum: [0, 7, 30, 90]
+        selfEmployedConfirmed:
+          type: boolean
+          description: "Декларация по ФЗ-54. Без true — тариф не активируется"
+      required: [title, priceRub, periodDays, selfEmployedConfirmed]
+
+    RegisterBusinessRequest:
+      type: object
+      properties:
+        title: { type: string, maxLength: 255 }
+        description: { type: string, maxLength: 200 }
+        category:
+          type: string
+          enum: [business, education, fitness, tech, services]
+      required: [title, description, category]
+
+paths:
+  # ── Catalog ────────────────────────────────────────────
+  /communities:
+    get:
+      summary: Список сообществ (каталог)
+      operationId: listCommunities
+      tags: [Catalog]
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [business, education, fitness, tech, services]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Community' }
+        '401':
+          description: HMAC invalid
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /communities/{id}:
+    get:
+      summary: Карточка сообщества
+      operationId: getCommunity
+      tags: [Catalog]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Community' }
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  # ── Payments ───────────────────────────────────────────
+  /payments/create:
+    post:
+      summary: Создать платёж (СБП через ЮKassa sandbox)
+      operationId: createPayment
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePaymentRequest' }
+      responses:
+        '201':
+          description: Платёж создан
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreatePaymentResponse' }
+        '402':
+          description: Ошибка платежа (PAYMENT_FAILED, PLAN_INACTIVE)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /payments/{paymentId}/status:
+    get:
+      summary: Статус платежа (polling)
+      operationId: getPaymentStatus
+      tags: [Payments]
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaymentStatusResponse' }
+        '404':
+          description: Платёж не найден
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  # ── Subscriptions ──────────────────────────────────────
+  /subscriptions/my:
+    get:
+      summary: Мои подписки (покупатель)
+      operationId: getMySubscriptions
+      tags: [Subscriptions]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Subscription' }
+
+  /subscriptions/{id}/invite:
+    post:
+      summary: Перевыпуск invite-токена (US-5.3)
+      operationId: reissueInvite
+      tags: [Subscriptions]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Новый токен выпущен, ссылка отправлена в бот
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inviteUrl: { type: string, format: uri }
+        '403':
+          description: Подписка не активна
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  # ── Business (Creator) ─────────────────────────────────
+  /business/dashboard:
+    get:
+      summary: Дашборд крейтора
+      operationId: getDashboard
+      tags: [Business]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DashboardData' }
+
+  /business/register:
+    post:
+      summary: Зарегистрировать бизнес-профиль
+      operationId: registerBusiness
+      tags: [Business]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterBusinessRequest' }
+      responses:
+        '201':
+          description: Сообщество создано
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Community' }
+
+  /business/self-employed-confirm:
+    post:
+      summary: Декларация самозанятого (US-1.4)
+      operationId: confirmSelfEmployed
+      tags: [Business]
+      responses:
+        '204':
+          description: Подтверждено (users.self_employed_confirmed = true)
+
+  /business/plans:
+    get:
+      summary: Список тарифов крейтора
+      operationId: getMyPlans
+      tags: [Business]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SubscriptionPlanExtended' }
+
+    post:
+      summary: Создать тариф
+      operationId: createPlan
+      tags: [Business]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePlanRequest' }
+      responses:
+        '201':
+          description: Тариф создан
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubscriptionPlan' }
+        '400':
+          description: Валидационная ошибка
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '403':
+          description: self_employed_confirmed = false
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /business/plans/{id}:
+    patch:
+      summary: Вкл/выкл тариф (is_active)
+      operationId: togglePlan
+      tags: [Business]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isActive: { type: boolean }
+              required: [isActive]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubscriptionPlan' }
+
+    delete:
+      summary: Удалить тариф (только при 0 подписок и платежей)
+      operationId: deletePlan
+      tags: [Business]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Удалён
+        '409':
+          description: Есть связанные подписки или платежи
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /business/export:
+    get:
+      summary: Экспорт статистики в Excel (US-7.3)
+      operationId: exportExcel
+      tags: [Business]
+      responses:
+        '200':
+          description: .xlsx файл
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  # ── Invite redirect (not under /api/v1) ────────────────
+  /i/{token}:
+    get:
+      summary: Одноразовый редирект по invite-токену (US-5.2)
+      operationId: redeemToken
+      tags: [InviteToken]
+      security: []   # no auth — public URL opened in browser
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '302':
+          description: Редирект на communities.invite_link
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+        '200':
+          description: HTML-страница «Ссылка устарела» (токен не найден / USED / истёк)
+
+  # ── Webhook (internal, not for mini-app) ───────────────
+  /webhook/yukassa:
+    post:
+      summary: Webhook от ЮKassa (payment.succeeded / payment.canceled)
+      operationId: yukassaWebhook
+      tags: [Webhook]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: ЮKassa notification object
+      responses:
+        '200':
+          description: OK (идемпотентный, ФЗ-161)

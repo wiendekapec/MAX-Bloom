@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL ─────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: bloom-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bloom}
+      POSTGRES_USER: ${POSTGRES_USER:-bloom}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bloom_secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bloom}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Spring Boot Backend ────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bloom-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-bloom}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-bloom}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-bloom_secret}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN}
+      MAX_BOT_SECRET: ${MAX_BOT_SECRET}
+      YUKASSA_SHOP_ID: ${YUKASSA_SHOP_ID}
+      YUKASSA_SECRET_KEY: ${YUKASSA_SECRET_KEY}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost}
+      BLOOM_EXPIRATION_CHECK_CRON: ${BLOOM_EXPIRATION_CHECK_CRON:-0 0 0 * * *}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Frontend (nginx + React build) ────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    container_name: bloom-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  pgdata:
