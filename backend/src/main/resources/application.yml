@@ -1,0 +1,60 @@
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  application:
+    name: max-bloom-backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:bloom}}
+    username: ${SPRING_DATASOURCE_USERNAME:${POSTGRES_USER:bloom}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:bloom_secret}}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: BloomHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+
+  sql:
+    init:
+      mode: never
+
+bloom:
+  app-base-url: ${APP_BASE_URL:http://localhost:8080}
+  cron:
+    expiration-check: ${BLOOM_EXPIRATION_CHECK_CRON:0 0 0 * * *}
+    member-sync: ${BLOOM_MEMBER_SYNC_CRON:0 0 1 * * *}
+
+max:
+  bot:
+    token: ${MAX_BOT_TOKEN:}
+    secret: ${MAX_BOT_SECRET:}
+
+yukassa:
+  shop-id: ${YUKASSA_SHOP_ID:}
+  secret-key: ${YUKASSA_SECRET_KEY:}
