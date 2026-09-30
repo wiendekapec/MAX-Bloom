@@ -22,6 +22,7 @@ public class PaymentDto {
     private Long id;
     private UUID idempotencyKey;
     private Long userId;
+    private String userMaxUserId;
     private Long planId;
     private String planTitle;
     private String communityTitle;

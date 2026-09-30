@@ -27,4 +27,5 @@ public class CommunityDto {
     private Integer subscribersCount;
     private List<SubscriptionPlanDto> plans;
     private Boolean isDemo;
+    private String inviteLink;
 }
