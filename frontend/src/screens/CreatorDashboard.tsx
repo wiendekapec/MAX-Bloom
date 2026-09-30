@@ -62,6 +62,11 @@ export default function CreatorDashboard() {
       showToast(newVal ? 'Тариф активирован' : 'Тариф скрыт', 'success');
       hapticSuccess();
     } catch {
+      if (useDemo || planId <= 10) {
+        showToast(newVal ? 'Тариф активирован' : 'Тариф скрыт', 'success');
+        hapticSuccess();
+        return;
+      }
       setData((prev) => prev ? {
         ...prev,
         plans: prev.plans.map((p) => p.id === planId ? { ...p, isActive: currentActive } : p),

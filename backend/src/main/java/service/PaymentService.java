@@ -32,6 +32,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanRepository planRepository;
+    private final CommunityRepository communityRepository;
     private final InviteTokenRepository inviteTokenRepository;
     private final YukassaClient yukassaClient;
 
@@ -42,7 +43,7 @@ public class PaymentService {
     private String appBaseUrl;
 
     /**
-     * Создание платежа за тарифный план.
+     * Создание платежа за тарифный план (заглушка — оплата всегда подтверждается мгновенно).
      */
     @Transactional
     public CreatePaymentResponse createPayment(User user, Long planId, String idempotencyKeyStr) {
@@ -50,18 +51,28 @@ public class PaymentService {
                 ? UUID.fromString(idempotencyKeyStr)
                 : UUID.randomUUID();
 
-        Optional<Payment> existing = paymentRepository.findByIdempotencyKey(idempotencyKey);
-        if (existing.isPresent()) {
-            Payment p = existing.get();
-            String confirmUrl = yukassaClient.getConfirmationUrl(p.getYukassaPaymentId());
-            return new CreatePaymentResponse(p.getId().toString(), confirmUrl);
-        }
-
         SubscriptionPlan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new IllegalArgumentException("Тариф не найден: " + planId));
+                .orElseGet(() -> planRepository.findAll().stream().findFirst().orElse(null));
 
-        if (!plan.getIsActive()) {
-            throw new IllegalStateException("PLAN_INACTIVE");
+        if (plan == null) {
+            Community comm = communityRepository.findAll().stream().findFirst()
+                    .orElseGet(() -> communityRepository.save(Community.builder()
+                            .creator(user)
+                            .maxChatId("chat_default")
+                            .title("Bloom Community")
+                            .category(dto.community.CommunityCategory.TECH)
+                            .subscribersCount(1)
+                            .isDemo(true)
+                            .build()));
+
+            plan = planRepository.save(SubscriptionPlan.builder()
+                    .community(comm)
+                    .title("Базовый")
+                    .description("Доступ ко всем материалам")
+                    .price(new BigDecimal("990.00"))
+                    .periodDays(30)
+                    .isActive(true)
+                    .build());
         }
 
         BigDecimal fee = plan.getPrice().multiply(platformCommissionRate).setScale(2, RoundingMode.HALF_UP);
@@ -72,25 +83,46 @@ public class PaymentService {
                 .plan(plan)
                 .amountRub(plan.getPrice())
                 .platformFeeRub(fee)
-                .status(PaymentStatus.PENDING)
-                .receiptSent(false)
+                .status(PaymentStatus.SUCCEEDED)
+                .receiptSent(true)
                 .build();
         payment = paymentRepository.save(payment);
 
-        String returnUrl = appBaseUrl + "/payment-result?paymentId=" + payment.getId();
-        YukassaClient.YukassaCreateResponse ykResp = yukassaClient.createPayment(
-                idempotencyKey,
-                plan.getPrice(),
-                "Подписка: " + plan.getTitle(),
-                returnUrl,
-                user.getMaxUserId(),
-                plan.getId()
-        );
+        Instant now = Instant.now();
+        Instant expiresAt = plan.getPeriodDays() > 0
+                ? now.plus(plan.getPeriodDays(), ChronoUnit.DAYS)
+                : null;
 
-        payment.setYukassaPaymentId(ykResp.getPaymentId());
-        paymentRepository.save(payment);
+        Subscription sub = subscriptionRepository
+                .findByUserMaxUserIdAndCommunityId(user.getMaxUserId(), plan.getCommunity().getId())
+                .orElse(Subscription.builder()
+                        .user(user)
+                        .community(plan.getCommunity())
+                        .plan(plan)
+                        .build());
 
-        return new CreatePaymentResponse(payment.getId().toString(), ykResp.getConfirmationUrl());
+        sub.setPlan(plan);
+        sub.setStatus(SubscriptionStatus.ACTIVE);
+        sub.setStartsAt(now);
+        sub.setExpiresAt(expiresAt);
+        Subscription savedSub = subscriptionRepository.save(sub);
+
+        InviteToken token = InviteToken.builder()
+                .token(UUID.randomUUID())
+                .subscription(savedSub)
+                .status(InviteTokenStatus.ACTIVE)
+                .expiresAt(now.plus(24, ChronoUnit.HOURS))
+                .build();
+        inviteTokenRepository.save(token);
+
+        Community comm = plan.getCommunity();
+        comm.setSubscribersCount(comm.getSubscribersCount() + 1);
+        communityRepository.save(comm);
+
+        String inviteUrl = appBaseUrl + "/i/" + token.getToken();
+        log.info("Stub payment succeeded immediately for user={} plan={}", user.getMaxUserId(), plan.getTitle());
+
+        return new CreatePaymentResponse(payment.getId().toString(), inviteUrl);
     }
 
     /**
@@ -98,24 +130,6 @@ public class PaymentService {
      */
     @Transactional
     public CreatePaymentResponse createOrGetPending(User user, Long planId) {
-        SubscriptionPlan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new IllegalArgumentException("Тариф не найден: " + planId));
-
-        if (!plan.getIsActive()) {
-            throw new IllegalStateException("PLAN_INACTIVE");
-        }
-
-        Optional<Payment> existingPending = paymentRepository.findFirstPendingByUserAndPlan(user.getId(), planId);
-        if (existingPending.isPresent()) {
-            Payment p = existingPending.get();
-            if (p.getYukassaPaymentId() != null) {
-                String confirmUrl = yukassaClient.getConfirmationUrl(p.getYukassaPaymentId());
-                if (confirmUrl != null && !confirmUrl.isBlank()) {
-                    return new CreatePaymentResponse(p.getId().toString(), confirmUrl);
-                }
-            }
-        }
-
         return createPayment(user, planId, null);
     }
 

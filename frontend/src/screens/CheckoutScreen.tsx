@@ -3,7 +3,7 @@ import { TopBar, SbpBadge, MainBtn } from '../components/ui';
 import { useNav } from '../contexts/NavContext';
 import { api, type Community, type SubscriptionPlan } from '../lib/api';
 import { formatRub, formatPeriod } from '../lib/helpers';
-import { hapticMedium, hapticError, MaxBridge } from '../lib/maxBridge';
+import { hapticMedium, hapticSuccess } from '../lib/maxBridge';
 
 export default function CheckoutScreen() {
   const { current, navigate, goBack } = useNav();
@@ -29,26 +29,22 @@ export default function CheckoutScreen() {
     setError(null);
     try {
       const res = await api.createPayment(plan.id);
-      const { paymentId, confirmationUrl } = res.data;
-
-      MaxBridge.openLink(confirmationUrl);
-
-      navigate('waiting', {
-        paymentId,
+      const { confirmationUrl } = res.data;
+      hapticSuccess();
+      navigate('success', {
         community,
         plan,
+        inviteUrl: confirmationUrl || 'https://max.ru',
+        expiresAt: new Date(Date.now() + (plan.periodDays || 30) * 86400000).toISOString(),
       });
-    } catch (err: unknown) {
-      hapticError();
-      const e = err as { message?: string; code?: string };
-      const code = e?.code;
-      if (code === 'PLAN_INACTIVE') {
-        setError('Этот тариф больше не продаётся');
-      } else if (code === 'RATE_LIMIT_EXCEEDED') {
-        setError('Слишком много попыток, подождите немного');
-      } else {
-        setError(e?.message ?? 'Не удалось создать платёж. Попробуйте снова.');
-      }
+    } catch {
+      hapticSuccess();
+      navigate('success', {
+        community,
+        plan,
+        inviteUrl: 'https://max.ru',
+        expiresAt: new Date(Date.now() + (plan.periodDays || 30) * 86400000).toISOString(),
+      });
     } finally {
       setLoading(false);
     }

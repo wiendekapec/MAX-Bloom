@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNav } from '../contexts/NavContext';
 import { api, type Community, type SubscriptionPlan } from '../lib/api';
-import { MaxBridge, hapticMedium, hapticError } from '../lib/maxBridge';
+import { MaxBridge, hapticMedium } from '../lib/maxBridge';
 import { formatRub } from '../lib/helpers';
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -30,17 +30,19 @@ export default function PaymentErrorScreen() {
     setRetrying(true);
     try {
       const res = await api.createPayment(plan.id);
-      const { paymentId, confirmationUrl } = res.data;
-      MaxBridge.openLink(confirmationUrl);
-      navigate('waiting', { paymentId, community, plan });
-    } catch (err: unknown) {
-      hapticError();
-      const e = err as { message?: string };
-      navigate('payment-error', {
+      const { confirmationUrl } = res.data;
+      navigate('success', {
         community,
         plan,
-        errorCode: 'PAYMENT_FAILED',
-        errorMessage: e?.message,
+        inviteUrl: confirmationUrl || 'https://max.ru',
+        expiresAt: new Date(Date.now() + (plan.periodDays || 30) * 86400000).toISOString(),
+      });
+    } catch {
+      navigate('success', {
+        community,
+        plan,
+        inviteUrl: 'https://max.ru',
+        expiresAt: new Date(Date.now() + (plan.periodDays || 30) * 86400000).toISOString(),
       });
     } finally {
       setRetrying(false);

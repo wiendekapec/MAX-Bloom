@@ -177,7 +177,7 @@ export const api = {
     apiClient.post<SubscriptionPlan>('/business/plans', data),
 
   togglePlan: (planId: number, isActive: boolean) =>
-    apiClient.patch<SubscriptionPlan>(`/business/plans/${planId}`, { isActive }),
+    apiClient.patch<SubscriptionPlan>(`/business/plans/${planId}`, { isActive, active: isActive }),
 
   deletePlan: (planId: number) =>
     apiClient.delete(`/business/plans/${planId}`),
