@@ -44,9 +44,10 @@ const stub: MaxBridgeSDK = {
     console.info('[MaxBridge] Stub init');
   },
   get initData() {
+    const now = Math.floor(Date.now() / 1000);
     return (
       import.meta.env.VITE_DEV_INIT_DATA ??
-      'user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Dev%22%2C%22username%22%3A%22devuser%22%7D&auth_date=1700000000&hash=dev_stub_hash'
+      `user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Dev%22%2C%22username%22%3A%22devuser%22%7D&auth_date=${now}&hash=dev_stub_hash`
     );
   },
   MainButton: {
