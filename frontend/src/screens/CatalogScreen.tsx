@@ -85,7 +85,7 @@ export default function CatalogScreen() {
             <div className="community-footer">
               <div className="community-subs">
                 <span>👥</span>
-                <span>{c.subscribersCount} подписчиков</span>
+                <span>{c.subscribersCount ?? 0} подписчиков</span>
               </div>
               <div className={`category-badge`}>
                 {CATEGORY_LABELS[c.category]}

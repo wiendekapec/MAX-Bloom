@@ -28,4 +28,14 @@ public class DashboardDataDto {
     private Integer plansCount;
     private List<SubscriptionPlanExtendedDto> plans;
     private List<PaymentDto> recentPayments;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("revenueTotal")
+    public BigDecimal getRevenueTotal() {
+        return totalRevenueRub != null ? totalRevenueRub : BigDecimal.ZERO;
+    }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("revenueMonth")
+    public BigDecimal getRevenueMonth() {
+        return revenueThisMonthRub != null ? revenueThisMonthRub : BigDecimal.ZERO;
+    }
 }

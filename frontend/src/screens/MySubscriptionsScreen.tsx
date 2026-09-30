@@ -120,8 +120,8 @@ export default function MySubscriptionsScreen() {
                 <div className="sub-expires">
                   {sub.status === 'ACTIVE' ? (
                     <>
-                      ⏱ Осталось <strong style={{ color: sub.daysLeft <= 3 ? 'var(--error)' : 'var(--sage)' }}>
-                        {sub.daysLeft} дн.
+                      ⏱ Осталось <strong style={{ color: (sub.daysLeft ?? 0) <= 3 ? 'var(--error)' : 'var(--sage)' }}>
+                        {sub.daysLeft ?? 0} дн.
                       </strong>{' '}
                       · до {formatDate(sub.expiresAt)}
                     </>
@@ -129,7 +129,7 @@ export default function MySubscriptionsScreen() {
                     <>Истекла {formatDate(sub.expiresAt)}</>
                   )}
                 </div>
-                {sub.daysLeft <= 3 && sub.status === 'ACTIVE' && (
+                {(sub.daysLeft ?? 0) <= 3 && sub.status === 'ACTIVE' && (
                   <div style={{ fontSize: 11, color: 'var(--warning)', marginTop: 3 }}>
                     ⚠️ Скоро истекает — продлите сейчас
                   </div>

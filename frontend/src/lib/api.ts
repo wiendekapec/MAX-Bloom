@@ -36,16 +36,20 @@ export type CommunityCategory =
 export interface DashboardData {
   communityId: number;
   communityTitle: string;
-  revenueTotal: number;
-  revenueMonth: number;
-  activeSubscribers: number;
+  revenueTotal?: number;
+  totalRevenueRub?: number;
+  revenueMonth?: number;
+  revenueThisMonthRub?: number;
+  activeSubscribers?: number;
+  plansCount?: number;
   plans: SubscriptionPlanExtended[];
   recentPayments: Payment[];
 }
 
 export interface SubscriptionPlanExtended extends SubscriptionPlan {
   subscribersCount: number;
-  revenueTotal: number;
+  revenueTotal?: number;
+  totalRevenueRub?: number;
 }
 
 export type PaymentStatus = 'PENDING' | 'SUCCEEDED' | 'CANCELED';

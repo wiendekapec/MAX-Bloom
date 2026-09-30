@@ -125,12 +125,12 @@ export default function CreatorDashboard() {
         <div className="stat-card wide">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div className="stat-value">{formatRub(data.revenueMonth)}</div>
+              <div className="stat-value">{formatRub(data.revenueThisMonthRub ?? data.revenueMonth ?? 0)}</div>
               <div className="stat-label">Выручка за 30 дней</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="stat-value" style={{ fontSize: 18, color: 'var(--muted)' }}>
-                {formatRub(data.revenueTotal)}
+                {formatRub(data.totalRevenueRub ?? data.revenueTotal ?? 0)}
               </div>
               <div className="stat-label">Всего</div>
             </div>
@@ -138,13 +138,13 @@ export default function CreatorDashboard() {
         </div>
 
         <div className="stat-card">
-          <div className="stat-value">{data.activeSubscribers}</div>
+          <div className="stat-value">{data.activeSubscribers ?? 0}</div>
           <div className="stat-label">Активных подписчиков</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-value bloom">
-            {data.plans.filter((p) => p.isActive).length}
+            {data.plans ? data.plans.filter((p) => p.isActive).length : 0}
           </div>
           <div className="stat-label">Активных тарифов</div>
         </div>
@@ -152,7 +152,7 @@ export default function CreatorDashboard() {
 
       <SectionTitle>Тарифы</SectionTitle>
       <div className="card">
-        {data.plans.length === 0 ? (
+        {!data.plans || data.plans.length === 0 ? (
           <EmptyState
             icon="📋"
             title="Нет тарифов"
@@ -168,11 +168,11 @@ export default function CreatorDashboard() {
                 </div>
                 <div className="plan-meta">
                   {formatRub(plan.priceRub)} · {formatPeriod(plan.periodDays)} ·{' '}
-                  <span style={{ color: 'var(--sage)' }}>{plan.subscribersCount} подписчиков</span>
+                  <span style={{ color: 'var(--sage)' }}>{plan.subscribersCount ?? 0} подписчиков</span>
                 </div>
                 {plan.communityId && (
                   <div className="plan-meta" style={{ marginTop: 2 }}>
-                    Выручка: {formatRub(plan.revenueTotal)}
+                    Выручка: {formatRub(plan.totalRevenueRub ?? plan.revenueTotal ?? 0)}
                   </div>
                 )}
               </div>

@@ -26,4 +26,9 @@ public class SubscriptionPlanExtendedDto {
     private Boolean isActive;
     private Integer subscribersCount;
     private BigDecimal totalRevenueRub;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("revenueTotal")
+    public BigDecimal getRevenueTotal() {
+        return totalRevenueRub != null ? totalRevenueRub : BigDecimal.ZERO;
+    }
 }

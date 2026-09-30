@@ -60,7 +60,7 @@ export default function CommunityScreen() {
           borderRadius: 'var(--radius)', padding: '10px 14px', textAlign: 'center'
         }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--sage)' }}>
-            {community.subscribersCount}
+            {community.subscribersCount ?? 0}
           </div>
           <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>подписчиков</div>
         </div>

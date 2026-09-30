@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNav } from '../contexts/NavContext';
 import { api, type Community, type SubscriptionPlan } from '../lib/api';
 import { MaxBridge, hapticMedium, hapticError } from '../lib/maxBridge';
+import { formatRub } from '../lib/helpers';
 
 const ERROR_MESSAGES: Record<string, string> = {
   PAYMENT_CANCELED: 'Оплата была отменена.',
@@ -76,7 +77,7 @@ export default function PaymentErrorScreen() {
           textAlign: 'left',
         }}>
           <div><strong style={{ color: 'var(--text)' }}>{community.title}</strong></div>
-          <div style={{ marginTop: 4 }}>{plan.title} · {plan.priceRub.toLocaleString('ru-RU')} ₽</div>
+          <div style={{ marginTop: 4 }}>{plan.title} · {formatRub(plan.priceRub)}</div>
         </div>
       )}
 
