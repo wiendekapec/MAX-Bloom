@@ -41,13 +41,34 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.disable())
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .requestMatchers("/webhook/**").permitAll()
                 .requestMatchers("/i/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/", "/index.html", "/assets/**", "/vite.svg", "/favicon.ico").permitAll()
+                .requestMatchers(
+                    "/",
+                    "/index.html",
+                    "/dashboard",
+                    "/catalog",
+                    "/community",
+                    "/checkout",
+                    "/waiting",
+                    "/success",
+                    "/payment-error",
+                    "/my-subscriptions",
+                    "/new-plan",
+                    "/assets/**",
+                    "/vite.svg",
+                    "/favicon.ico",
+                    "/*.svg",
+                    "/*.png",
+                    "/*.ico"
+                ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/communities", "/api/v1/communities/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/plans/**").permitAll()
                 .requestMatchers("/api/v1/payments/return").permitAll()

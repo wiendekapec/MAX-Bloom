@@ -3,19 +3,20 @@ package bloom;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/**
- * Контроллер перенаправления SPA-маршрутов на index.html.
- */
 @Controller
 public class SpaForwardController {
 
     @GetMapping(value = {
-        "/{path:[^\\.]*}",
-        "/catalog/**",
-        "/business/**",
-        "/subscriptions/**",
-        "/community/**",
-        "/payment/**"
+            "/",
+            "/dashboard",
+            "/catalog",
+            "/community",
+            "/checkout",
+            "/waiting",
+            "/success",
+            "/payment-error",
+            "/my-subscriptions",
+            "/new-plan"
     })
     public String forwardSpa() {
         return "forward:/index.html";
