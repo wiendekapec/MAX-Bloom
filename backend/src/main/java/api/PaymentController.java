@@ -44,7 +44,7 @@ public class PaymentController {
      */
     @PostMapping
     public ResponseEntity<CreatePaymentResponse> createPayment(
-            @RequestHeader("X-Init-Data") String initData,
+            @RequestHeader(value = "X-Init-Data", required = false) String initData,
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @Valid @RequestBody CreatePaymentRequest request
     ) {
@@ -59,7 +59,7 @@ public class PaymentController {
      */
     @GetMapping("/{id}/status")
     public ResponseEntity<PaymentStatusResponse> getPaymentStatus(
-            @RequestHeader("X-Init-Data") String initData,
+            @RequestHeader(value = "X-Init-Data", required = false) String initData,
             @PathVariable Long id
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);

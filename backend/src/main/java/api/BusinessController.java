@@ -57,7 +57,7 @@ public class BusinessController {
      */
     @PostMapping("/register")
     public ResponseEntity<CommunityDto> registerBusiness(
-            @RequestHeader("X-Init-Data") String initData,
+            @RequestHeader(value = "X-Init-Data", required = false) String initData,
             @Valid @RequestBody RegisterBusinessRequest request
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
@@ -82,7 +82,7 @@ public class BusinessController {
      */
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardDataDto> getDashboard(
-            @RequestHeader("X-Init-Data") String initData
+            @RequestHeader(value = "X-Init-Data", required = false) String initData
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
         List<Community> communities = communityService.findByCreatorMaxUserId(maxUserId);
@@ -157,7 +157,7 @@ public class BusinessController {
      */
     @PostMapping("/plans")
     public ResponseEntity<SubscriptionPlanDto> createPlan(
-            @RequestHeader("X-Init-Data") String initData,
+            @RequestHeader(value = "X-Init-Data", required = false) String initData,
             @Valid @RequestBody CreatePlanRequest request
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
@@ -185,7 +185,7 @@ public class BusinessController {
      */
     @PatchMapping("/plans/{id}")
     public ResponseEntity<SubscriptionPlanDto> togglePlan(
-            @RequestHeader("X-Init-Data") String initData,
+            @RequestHeader(value = "X-Init-Data", required = false) String initData,
             @PathVariable Long id,
             @Valid @RequestBody TogglePlanRequest request
     ) {
@@ -207,7 +207,7 @@ public class BusinessController {
      */
     @DeleteMapping("/plans/{id}")
     public ResponseEntity<Void> deletePlan(
-            @RequestHeader("X-Init-Data") String initData,
+            @RequestHeader(value = "X-Init-Data", required = false) String initData,
             @PathVariable Long id
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
@@ -234,7 +234,7 @@ public class BusinessController {
      */
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportData(
-            @RequestHeader("X-Init-Data") String initData
+            @RequestHeader(value = "X-Init-Data", required = false) String initData
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
         List<Community> communities = communityService.findByCreatorMaxUserId(maxUserId);

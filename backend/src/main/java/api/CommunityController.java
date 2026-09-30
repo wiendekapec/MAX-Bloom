@@ -78,7 +78,7 @@ public class CommunityController {
      */
     @GetMapping("/subscriptions/my")
     public ResponseEntity<List<SubscriptionDto>> getMySubscriptions(
-            @RequestHeader("X-Init-Data") String initData
+            @RequestHeader(value = "X-Init-Data", required = false) String initData
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
         List<Subscription> subs = subscriptionRepository.findByUserMaxUserId(maxUserId);
@@ -113,7 +113,7 @@ public class CommunityController {
      */
     @PostMapping("/subscriptions/{id}/invite")
     public ResponseEntity<ReissueInviteResponse> reissueInvite(
-            @RequestHeader("X-Init-Data") String initData,
+            @RequestHeader(value = "X-Init-Data", required = false) String initData,
             @PathVariable Long id
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);

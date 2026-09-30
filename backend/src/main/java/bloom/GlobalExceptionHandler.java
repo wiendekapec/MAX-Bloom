@@ -47,6 +47,18 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", detail);
     }
 
+    @ExceptionHandler(org.springframework.web.bind.MissingRequestHeaderException.class)
+    public ResponseEntity<ProblemDetailDto> handleMissingHeader(org.springframework.web.bind.MissingRequestHeaderException ex) {
+        log.warn("Missing request header: {}", ex.getHeaderName());
+        return error(HttpStatus.BAD_REQUEST, "MISSING_HEADER", "Missing required header: " + ex.getHeaderName());
+    }
+
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetailDto> handleNotReadable(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        log.warn("Payload not readable: {}", ex.getMessage());
+        return error(HttpStatus.BAD_REQUEST, "INVALID_PAYLOAD", "Malformed request body");
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetailDto> handleGeneric(Exception ex) {
         log.error("Unhandled exception: {}", ex.getMessage(), ex);

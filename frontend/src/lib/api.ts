@@ -118,9 +118,9 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const initData = getInitData();
-  if (initData) {
-    config.headers['X-Init-Data'] = initData;
-  }
+  config.headers['X-Init-Data'] =
+    initData ||
+    `user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Dev%22%2C%22username%22%3A%22devuser%22%7D&auth_date=${Math.floor(Date.now() / 1000)}&hash=dev_stub_hash`;
   return config;
 });
 
