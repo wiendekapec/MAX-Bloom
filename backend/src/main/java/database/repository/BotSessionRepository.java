@@ -10,21 +10,23 @@ import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.util.Optional;
 
+/**
+ * Репозиторий сессий онбординга бота.
+ */
 @Repository
 public interface BotSessionRepository extends JpaRepository<BotSession, Long> {
 
     Optional<BotSession> findByMaxUserId(String maxUserId);
 
     /**
-     * Поиск сессии, ожидающей привязки конкретного чата (bot_added event).
-     * Использует частичный индекс idx_bot_sessions_pending_chat.
+     * Поиск сессии по ожидающему чату.
      */
     Optional<BotSession> findByPendingChatId(String pendingChatId);
 
     void deleteByMaxUserId(String maxUserId);
 
     /**
-     * Удалить зависшие сессии (TTL: 1 час без активности) — для SubscriptionScheduler.
+     * Удаление устаревших сессий онбординга.
      */
     @Modifying
     @Query("DELETE FROM BotSession s WHERE s.updatedAt < :before")

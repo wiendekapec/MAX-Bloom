@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий платежей и финансовых транзакций.
+ */
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
@@ -24,16 +27,14 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByYukassaPaymentId(String yukassaPaymentId);
 
     /**
-     * Пессимистическая блокировка строки платежа (SELECT ... FOR UPDATE) для атомарной обработки вебхуков.
-     * Защищает от состояния гонки при параллельной доставке событий.
+     * Пессимистическая блокировка строки платежа для атомарной обработки вебхуков.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Payment p WHERE p.yukassaPaymentId = :yukassaPaymentId")
     Optional<Payment> findByYukassaPaymentIdWithLock(@Param("yukassaPaymentId") String yukassaPaymentId);
 
     /**
-     * Атомарное обновление статуса по принципу Compare-And-Swap (CAS).
-     * Возвращает 1, только если текущий статус соответствовал ожидаемому.
+     * Атомарное обновление статуса по принципу CAS.
      */
     @Modifying
     @Query("UPDATE Payment p SET p.status = :newStatus WHERE p.yukassaPaymentId = :yukassaPaymentId AND p.status = :expectedStatus")
@@ -51,7 +52,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     long countByPlanId(Long planId);
 
     /**
-     * Расчёт суммарной выручки сообщества по успешным платежам.
+     * Расчет суммарной выручки сообщества по статусу платежа.
      */
     @Query("SELECT coalesce(sum(p.amountRub), 0) FROM Payment p " +
            "WHERE p.plan.community.id = :communityId AND p.status = :status")
@@ -60,7 +61,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("status") PaymentStatus status);
 
     /**
-     * Расчёт выручки сообщества за период (например, за последние 30 дней) для дашборда.
+     * Расчет выручки сообщества с заданной даты.
      */
     @Query("SELECT coalesce(sum(p.amountRub), 0) FROM Payment p " +
            "WHERE p.plan.community.id = :communityId AND p.status = :status AND p.createdAt >= :since")
@@ -70,7 +71,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("since") Instant since);
 
     /**
-     * Проверить наличие PENDING-платежа пользователя на тариф (для идемпотентности создания).
+     * Поиск незавершенного платежа пользователя по тарифу.
      */
     @Query("SELECT p FROM Payment p WHERE p.user.id = :userId AND p.plan.id = :planId AND p.status = 'PENDING'")
     Optional<Payment> findFirstPendingByUserAndPlan(

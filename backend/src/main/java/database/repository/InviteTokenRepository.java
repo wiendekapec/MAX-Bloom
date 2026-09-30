@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий одноразовых инвайт-токенов.
+ */
 @Repository
 public interface InviteTokenRepository extends JpaRepository<InviteToken, Long> {
 
     /**
-     * Атомарное одноразовое использование токена (CAS).
-     * Защищает от race condition при параллельных переходах по одной ссылке:
-     * только один первый запрос переведёт токен в USED и вернёт 1.
+     * Атомарное использование токена по алгоритму CAS.
      */
     @Modifying
     @Query("UPDATE InviteToken t SET t.status = :newStatus, t.usedAt = :now " +
@@ -31,25 +32,25 @@ public interface InviteTokenRepository extends JpaRepository<InviteToken, Long> 
             @Param("now") Instant now);
 
     /**
-     * Поиск токена по UUID для redirect-эндпоинта /i/{token}.
+     * Поиск токена по значению UUID.
      */
     Optional<InviteToken> findByToken(UUID token);
 
     /**
-     * Поиск активного токена для конкретной подписки.
+     * Поиск последнего активного токена подписки.
      */
     Optional<InviteToken> findFirstBySubscriptionIdAndStatusOrderByCreatedAtDesc(
             Long subscriptionId, InviteTokenStatus status);
 
     /**
-     * Поиск просроченных токенов со статусом ACTIVE для очистки/маркировки EXPIRED.
+     * Поиск просроченных токенов с заданным статусом.
      */
     List<InviteToken> findByExpiresAtBeforeAndStatus(Instant time, InviteTokenStatus status);
 
     List<InviteToken> findBySubscriptionId(Long subscriptionId);
 
     /**
-     * Активные токены по подписке — для инвалидации перед перевыпуском.
+     * Поиск всех активных токенов подписки.
      */
     @Query("SELECT t FROM InviteToken t WHERE t.subscription.id = :subId AND t.status = 'ACTIVE'")
     List<InviteToken> findActiveBySubscriptionId(@Param("subId") Long subscriptionId);
