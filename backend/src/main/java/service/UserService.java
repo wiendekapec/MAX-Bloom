@@ -76,4 +76,16 @@ public class UserService {
         return userRepository.findByMaxUserId(maxUserId)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден: " + maxUserId));
     }
+
+    @Transactional
+    public User getOrCreateByMaxUserId(String maxUserId) {
+        return userRepository.findByMaxUserId(maxUserId)
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .maxUserId(maxUserId)
+                        .username("user_" + maxUserId)
+                        .firstName("User")
+                        .pdpConsentGiven(true)
+                        .role(UserRole.USER)
+                        .build()));
+    }
 }

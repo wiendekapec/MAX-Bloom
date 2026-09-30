@@ -163,7 +163,14 @@ public class BusinessController {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
         List<Community> communities = communityService.findByCreatorMaxUserId(maxUserId);
         if (communities.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            User creator = userService.getOrCreateByMaxUserId(maxUserId);
+            dto.community.RegisterBusinessRequest defaultReg = dto.community.RegisterBusinessRequest.builder()
+                    .title("Сообщество " + request.getTitle())
+                    .description("Основной канал автора")
+                    .category(dto.community.CommunityCategory.BUSINESS)
+                    .build();
+            Community newComm = communityService.registerCommunity(creator, defaultReg);
+            communities = List.of(newComm);
         }
 
         Community community = communities.get(0);

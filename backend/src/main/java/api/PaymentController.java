@@ -49,7 +49,7 @@ public class PaymentController {
             @Valid @RequestBody CreatePaymentRequest request
     ) {
         String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
-        User user = userService.getByMaxUserId(maxUserId);
+        User user = userService.getOrCreateByMaxUserId(maxUserId);
         CreatePaymentResponse response = paymentService.createPayment(user, request.getPlanId(), idempotencyKey);
         return ResponseEntity.ok(response);
     }
