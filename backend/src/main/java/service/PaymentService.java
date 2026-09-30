@@ -52,28 +52,7 @@ public class PaymentService {
                 : UUID.randomUUID();
 
         SubscriptionPlan plan = planRepository.findById(planId)
-                .orElseGet(() -> planRepository.findAll().stream().findFirst().orElse(null));
-
-        if (plan == null) {
-            Community comm = communityRepository.findAll().stream().findFirst()
-                    .orElseGet(() -> communityRepository.save(Community.builder()
-                            .creator(user)
-                            .maxChatId("chat_default")
-                            .title("Bloom Community")
-                            .category(dto.community.CommunityCategory.TECH)
-                            .subscribersCount(1)
-                            .isDemo(true)
-                            .build()));
-
-            plan = planRepository.save(SubscriptionPlan.builder()
-                    .community(comm)
-                    .title("Базовый")
-                    .description("Доступ ко всем материалам")
-                    .price(new BigDecimal("990.00"))
-                    .periodDays(30)
-                    .isActive(true)
-                    .build());
-        }
+                .orElseThrow(() -> new IllegalArgumentException("Тариф не найден: " + planId));
 
         BigDecimal fee = plan.getPrice().multiply(platformCommissionRate).setScale(2, RoundingMode.HALF_UP);
 
