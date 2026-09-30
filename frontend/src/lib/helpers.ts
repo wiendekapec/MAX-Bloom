@@ -1,10 +1,5 @@
-/**
- * helpers.ts — shared utility functions
- */
-
 import type { CommunityCategory, PlanPeriod } from './api';
 
-/** Format RUB amount */
 export function formatRub(amount: number): string {
   return new Intl.NumberFormat('ru-RU', {
     style: 'currency',
@@ -14,7 +9,6 @@ export function formatRub(amount: number): string {
   }).format(amount);
 }
 
-/** Format period_days to human-readable */
 export function formatPeriod(days: PlanPeriod): string {
   if (days === 0) return 'Разово';
   if (days === 7) return '7 дней';
@@ -23,7 +17,6 @@ export function formatPeriod(days: PlanPeriod): string {
   return `${days} дней`;
 }
 
-/** Format date to Russian locale */
 export function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString('ru-RU', {
@@ -33,7 +26,6 @@ export function formatDate(iso: string): string {
   });
 }
 
-/** Format date + time */
 export function formatDateTime(iso: string): string {
   const d = new Date(iso);
   const now = new Date();
@@ -50,13 +42,11 @@ export function formatDateTime(iso: string): string {
   return `${days} дн. назад`;
 }
 
-/** Days until date */
 export function daysLeft(iso: string): number {
   const ms = new Date(iso).getTime() - Date.now();
   return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
 }
 
-/** Category label */
 export const CATEGORY_LABELS: Record<CommunityCategory, string> = {
   business: '💼 Бизнес',
   education: '📚 Образование',
@@ -65,7 +55,6 @@ export const CATEGORY_LABELS: Record<CommunityCategory, string> = {
   services: '⚖️ Услуги',
 };
 
-/** Category gradient */
 export const CATEGORY_GRADIENTS: Record<CommunityCategory, string> = {
   business: 'linear-gradient(135deg, #F5C84A, #FF6F8E)',
   education: 'linear-gradient(135deg, #4ECDC4, #9FD8B5)',
@@ -74,7 +63,6 @@ export const CATEGORY_GRADIENTS: Record<CommunityCategory, string> = {
   services: 'linear-gradient(135deg, #FFB199, #F5C84A)',
 };
 
-/** Category emoji */
 export const CATEGORY_EMOJIS: Record<CommunityCategory, string> = {
   business: '💼',
   education: '📚',
@@ -83,7 +71,6 @@ export const CATEGORY_EMOJIS: Record<CommunityCategory, string> = {
   services: '⚖️',
 };
 
-/** Download blob as file */
 export function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -93,7 +80,6 @@ export function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-/** Truncate text */
 export function truncate(str: string, max: number): string {
   if (str.length <= max) return str;
   return str.slice(0, max) + '…';

@@ -1,8 +1,3 @@
-/**
- * NewPlanScreen — создание тарифа
- * US-2.1, US-1.4 (self-employed confirmation before first plan)
- */
-
 import { useState } from 'react';
 import { TopBar, MainBtn, InfoBanner } from '../components/ui';
 import { useNav } from '../contexts/NavContext';
@@ -96,13 +91,11 @@ export default function NewPlanScreen() {
       <TopBar title="Новый тариф" onBack={goBack} />
 
       <div style={{ paddingTop: 8 }}>
-        {/* Channel binding reminder */}
         <InfoBanner type="info" icon="📡">
           После создания тарифа добавьте бота администратором в ваш MAX-канал с правом{' '}
           <strong>«Управление участниками»</strong>, чтобы бот мог выдавать и отзывать доступ.
         </InfoBanner>
 
-        {/* Title */}
         <div className="field">
           <label htmlFor="plan-title">Название тарифа *</label>
           <input
@@ -117,7 +110,6 @@ export default function NewPlanScreen() {
           {errors.title && <div className="field-error">{errors.title}</div>}
         </div>
 
-        {/* Description */}
         <div className="field">
           <label htmlFor="plan-desc">Описание (необязательно)</label>
           <textarea
@@ -132,7 +124,6 @@ export default function NewPlanScreen() {
           />
         </div>
 
-        {/* Price */}
         <div className="field">
           <label htmlFor="plan-price">Цена, ₽ *</label>
           <input
@@ -149,7 +140,6 @@ export default function NewPlanScreen() {
           {errors.priceRub && <div className="field-error">{errors.priceRub}</div>}
         </div>
 
-        {/* Period */}
         <div className="field">
           <label>Период доступа *</label>
           <div className="period-chips">
@@ -169,7 +159,6 @@ export default function NewPlanScreen() {
           </div>
         </div>
 
-        {/* Self-employed declaration — US-1.4 */}
         <div style={{
           background: 'var(--glass)',
           border: '1.5px solid var(--glass-b)',
@@ -180,7 +169,7 @@ export default function NewPlanScreen() {
           <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10, lineHeight: 1.5 }}>
             ⚖️ <strong style={{ color: 'var(--text)' }}>Подтверждение статуса</strong>
             <br />
-            Согласно ФЗ-54, приём платежей требует наличия юридического статуса. Без подтверждения
+            Согласно законодательству, приём платежей требует наличия юридического статуса. Без подтверждения
             тариф не может быть активирован.
           </div>
           <div className="checkbox-row" style={{ padding: 0 }}>
@@ -205,7 +194,6 @@ export default function NewPlanScreen() {
           )}
         </div>
 
-        {/* Sandbox notice */}
         <div style={{ fontSize: 11.5, color: 'var(--muted)', textAlign: 'center', padding: '8px 0 24px', lineHeight: 1.5 }}>
           Оплата через ЮKassa используется в тестовом режиме (sandbox).{'\n'}
           Реальные списания не происходят.

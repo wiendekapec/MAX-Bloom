@@ -1,8 +1,3 @@
-/**
- * MySubscriptionsScreen — список подписок покупателя
- * US-5.3 (перевыпуск токена)
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import { TopBar, Badge, EmptyState, ErrorBanner, SkeletonCard } from '../components/ui';
 import { useNav } from '../contexts/NavContext';
@@ -85,7 +80,6 @@ export default function MySubscriptionsScreen() {
   };
 
   const handleRenew = (_sub: Subscription) => {
-    // Find the community in demo data and navigate to checkout
     navigate('catalog');
     showToast(`Выберите тариф для продления`, 'info');
   };

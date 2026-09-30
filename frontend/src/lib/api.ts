@@ -1,20 +1,7 @@
-/**
- * api.ts
- * Centralized API layer for MAX Bloom frontend.
- * All endpoints from DATA-API contract + BOT_AND_MINIAPP_LOGIC.md
- *
- * Base URL from VITE_API_BASE_URL env, defaults to /api/v1
- * Auth: X-Init-Data header (MAX initData, verified HMAC-SHA256 on backend)
- */
-
 import axios from 'axios';
 import { getInitData } from './maxBridge';
 
-// ──────────────────────────────────────────────
-// Types
-// ──────────────────────────────────────────────
-
-export type PlanPeriod = 7 | 30 | 90 | 0; // 0 = разово
+export type PlanPeriod = 7 | 30 | 90 | 0;
 
 export interface SubscriptionPlan {
   id: number;
@@ -85,7 +72,7 @@ export interface CreatePaymentResponse {
 export interface PaymentStatusResponse {
   paymentId: string;
   status: PaymentStatus;
-  inviteUrl?: string; // https://bloom.example/i/{token}
+  inviteUrl?: string;
   expiresAt?: string;
 }
 
@@ -118,10 +105,6 @@ export interface RegisterBusinessRequest {
   category: CommunityCategory;
 }
 
-// ──────────────────────────────────────────────
-// Axios instance
-// ──────────────────────────────────────────────
-
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 
 export const apiClient = axios.create({
@@ -133,7 +116,6 @@ export const apiClient = axios.create({
   },
 });
 
-// Attach initData to every request
 apiClient.interceptors.request.use((config) => {
   const initData = getInitData();
   if (initData) {
@@ -142,7 +124,6 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Normalize error responses (RFC 7807 Problem+JSON)
 apiClient.interceptors.response.use(
   (res) => res,
   (error) => {
@@ -157,83 +138,51 @@ apiClient.interceptors.response.use(
   }
 );
 
-// ──────────────────────────────────────────────
-// API methods
-// ──────────────────────────────────────────────
-
-/** CATALOG */
 export const api = {
-  // ------------- Public / Catalog -------------
-
-  /** GET /communities — list (can be demo data from backend) */
   getCommunities: (category?: CommunityCategory) =>
     apiClient.get<Community[]>('/communities', {
       params: category ? { category } : undefined,
     }),
 
-  /** GET /communities/:id */
   getCommunity: (id: number) =>
     apiClient.get<Community>(`/communities/${id}`),
 
-  // ------------- Payments (Buyer) -------------
-
-  /** POST /payments/create */
   createPayment: (planId: number) =>
-    apiClient.post<CreatePaymentResponse>('/payments/create', { planId }),
+    apiClient.post<CreatePaymentResponse>('/payments', { planId }),
 
-  /** GET /payments/:id/status — polling */
   getPaymentStatus: (paymentId: string) =>
     apiClient.get<PaymentStatusResponse>(`/payments/${paymentId}/status`),
 
-  // ------------- Subscriptions (Buyer) --------
-
-  /** GET /subscriptions/my */
   getMySubscriptions: () =>
     apiClient.get<Subscription[]>('/subscriptions/my'),
 
-  /** POST /subscriptions/:id/invite — reissue token */
   reissueInvite: (subscriptionId: number) =>
     apiClient.post<{ inviteUrl: string }>(`/subscriptions/${subscriptionId}/invite`),
 
-  // ------------- Business (Creator) -----------
-
-  /** GET /business/dashboard */
   getDashboard: () =>
     apiClient.get<DashboardData>('/business/dashboard'),
 
-  /** GET /business/plans */
   getMyPlans: () =>
     apiClient.get<SubscriptionPlanExtended[]>('/business/plans'),
 
-  /** POST /business/plans */
   createPlan: (data: CreatePlanRequest) =>
     apiClient.post<SubscriptionPlan>('/business/plans', data),
 
-  /** PATCH /business/plans/:id — toggle isActive */
   togglePlan: (planId: number, isActive: boolean) =>
     apiClient.patch<SubscriptionPlan>(`/business/plans/${planId}`, { isActive }),
 
-  /** DELETE /business/plans/:id — only if 0 subscriptions/payments */
   deletePlan: (planId: number) =>
     apiClient.delete(`/business/plans/${planId}`),
 
-  /** GET /business/export — .xlsx download */
   exportExcel: () =>
     apiClient.get('/business/export', { responseType: 'blob' }),
 
-  /** POST /business/register */
   registerBusiness: (data: RegisterBusinessRequest) =>
     apiClient.post<Community>('/business/register', data),
 
-  /** POST /business/self-employed-confirm */
   confirmSelfEmployed: () =>
     apiClient.post('/business/self-employed-confirm'),
 };
-
-// ──────────────────────────────────────────────
-// Mock/Demo data (used when backend isn't ready)
-// Labeled as demo per spec section 3
-// ──────────────────────────────────────────────
 
 export const DEMO_COMMUNITIES: Community[] = [
   {

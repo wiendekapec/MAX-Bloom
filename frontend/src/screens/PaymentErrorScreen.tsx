@@ -1,8 +1,3 @@
-/**
- * PaymentErrorScreen — ошибка оплаты
- * US-4.4 (must have — рабочая ветка, не мок)
- */
-
 import { useState } from 'react';
 import { useNav } from '../contexts/NavContext';
 import { api, type Community, type SubscriptionPlan } from '../lib/api';
@@ -16,7 +11,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   INSUFFICIENT_FUNDS: 'Недостаточно средств на счёте.',
 };
 
-const SUPPORT_LINK = 'https://max.ru/MaxBloomBot'; // deep link to bot support
+const SUPPORT_LINK = 'https://max.ru/MaxBloomBot';
 
 export default function PaymentErrorScreen() {
   const { current, navigate } = useNav();
@@ -40,7 +35,6 @@ export default function PaymentErrorScreen() {
     } catch (err: unknown) {
       hapticError();
       const e = err as { message?: string };
-      // Stay on this screen with updated error
       navigate('payment-error', {
         community,
         plan,

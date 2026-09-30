@@ -1,20 +1,10 @@
-/**
- * WaitingScreen — polling статуса платежа
- * US-4.2, BOT_AND_MINIAPP_LOGIC п.9
- *
- * Polling каждые 2с, максимум 60с.
- * SUCCEEDED → success screen
- * CANCELED → payment-error screen
- * Timeout → информационное сообщение (webhook всё равно дойдёт)
- */
-
 import { useEffect, useRef, useState } from 'react';
 import { useNav } from '../contexts/NavContext';
 import { api, type Community, type SubscriptionPlan } from '../lib/api';
 import { hapticSuccess, hapticError } from '../lib/maxBridge';
 
 const POLL_INTERVAL_MS = 2000;
-const MAX_POLLS = 30; // 30 × 2s = 60s
+const MAX_POLLS = 30;
 
 export default function WaitingScreen() {
   const { current, navigate } = useNav();
@@ -48,7 +38,6 @@ export default function WaitingScreen() {
           return;
         }
 
-        // Still PENDING — keep polling
         setPollCount((n) => {
           if (n + 1 >= MAX_POLLS) {
             clearInterval(timerRef.current!);
@@ -57,13 +46,12 @@ export default function WaitingScreen() {
           return n + 1;
         });
       } catch {
-        // Network error during poll — continue until timeout
         setPollCount((n) => n + 1);
       }
     };
 
     timerRef.current = setInterval(poll, POLL_INTERVAL_MS);
-    poll(); // immediate first poll
+    poll();
 
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [paymentId, community, plan, navigate]);
@@ -98,7 +86,6 @@ export default function WaitingScreen() {
         Подтвердите оплату по СБП в приложении вашего банка, затем вернитесь сюда.
       </div>
 
-      {/* Progress bar */}
       <div style={{
         width: '80%',
         maxWidth: 280,

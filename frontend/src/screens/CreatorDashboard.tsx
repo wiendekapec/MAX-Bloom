@@ -1,8 +1,3 @@
-/**
- * CreatorDashboard — главный экран крейтора
- * US-7.1, US-7.2, US-7.3
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import {
   SectionTitle, Toggle, SkeletonCard, ErrorBanner, Badge, EmptyState
@@ -42,7 +37,6 @@ export default function CreatorDashboard() {
       const res = await api.getDashboard();
       setData(res.data);
     } catch {
-      // Fall back to demo data (backend not ready)
       setData(DEMO_DASHBOARD);
       setUseDemo(true);
     } finally {
@@ -58,7 +52,6 @@ export default function CreatorDashboard() {
     setTogglingPlan(planId);
     const newVal = !currentActive;
 
-    // Optimistic update
     setData((prev) => prev ? {
       ...prev,
       plans: prev.plans.map((p) => p.id === planId ? { ...p, isActive: newVal } : p),
@@ -69,7 +62,6 @@ export default function CreatorDashboard() {
       showToast(newVal ? 'Тариф активирован' : 'Тариф скрыт', 'success');
       hapticSuccess();
     } catch {
-      // Revert optimistic update
       setData((prev) => prev ? {
         ...prev,
         plans: prev.plans.map((p) => p.id === planId ? { ...p, isActive: currentActive } : p),
@@ -120,7 +112,6 @@ export default function CreatorDashboard() {
 
   return (
     <div className="screen fade-in">
-      {/* Demo badge */}
       {useDemo && (
         <div className="info-banner warning" style={{ marginTop: 8 }}>
           <span className="info-banner-icon">🧪</span>
@@ -130,7 +121,6 @@ export default function CreatorDashboard() {
         </div>
       )}
 
-      {/* Stats */}
       <div className="stat-grid" style={{ marginTop: 8 }}>
         <div className="stat-card wide">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -160,7 +150,6 @@ export default function CreatorDashboard() {
         </div>
       </div>
 
-      {/* Plans */}
       <SectionTitle>Тарифы</SectionTitle>
       <div className="card">
         {data.plans.length === 0 ? (
@@ -211,7 +200,6 @@ export default function CreatorDashboard() {
         + Добавить тариф
       </button>
 
-      {/* Share link */}
       {data.plans.length > 0 && (
         <>
           <SectionTitle>Ссылка на тариф</SectionTitle>
@@ -248,7 +236,6 @@ export default function CreatorDashboard() {
         </>
       )}
 
-      {/* Recent payments */}
       <SectionTitle>Последние платежи</SectionTitle>
       <div className="card" id="dashboard-payments">
         {data.recentPayments.length === 0 ? (
@@ -278,7 +265,6 @@ export default function CreatorDashboard() {
         )}
       </div>
 
-      {/* Export */}
       <button
         className="btn btn-ghost btn-full"
         id="dashboard-export"
@@ -289,7 +275,6 @@ export default function CreatorDashboard() {
         {exportLoading ? '⏳ Генерируется…' : '⬇ Экспорт в Excel (.xlsx)'}
       </button>
 
-      {/* FAB to add plan */}
       <button className="fab" id="fab-new-plan" onClick={() => navigate('new-plan')} aria-label="Добавить тариф">
         +
       </button>

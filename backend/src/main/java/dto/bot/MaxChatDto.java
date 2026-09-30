@@ -26,7 +26,7 @@ public class MaxChatDto {
     private String title;
 
     /**
-     * Постоянная инвайт-ссылка на канал (Chat.link).
+     * Ссылка на канал.
      */
     @JsonProperty("link")
     private String link;

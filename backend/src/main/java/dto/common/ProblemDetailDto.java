@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Формат ответа при возникновении ошибок API.
+ */
 @Data
 @Builder
 @NoArgsConstructor

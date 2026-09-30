@@ -73,7 +73,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     /**
      * Поиск незавершенного платежа пользователя по тарифу.
      */
-    @Query("SELECT p FROM Payment p WHERE p.user.id = :userId AND p.plan.id = :planId AND p.status = 'PENDING'")
+    @Query("SELECT p FROM Payment p WHERE p.user.id = :userId AND p.plan.id = :planId AND p.status = dto.payment.PaymentStatus.PENDING")
     Optional<Payment> findFirstPendingByUserAndPlan(
             @Param("userId") Long userId,
             @Param("planId") Long planId);

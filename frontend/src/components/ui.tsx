@@ -1,20 +1,8 @@
-/**
- * Shared UI components
- */
-
 import { type ReactNode } from 'react';
-
-// ──────────────────────────────────────────────
-// Spinner
-// ──────────────────────────────────────────────
 
 export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' }) {
   return <div className={`spinner ${size === 'sm' ? 'sm' : ''}`} />;
 }
-
-// ──────────────────────────────────────────────
-// Skeleton
-// ──────────────────────────────────────────────
 
 export function SkeletonCard() {
   return (
@@ -25,10 +13,6 @@ export function SkeletonCard() {
     </div>
   );
 }
-
-// ──────────────────────────────────────────────
-// TopBar
-// ──────────────────────────────────────────────
 
 interface TopBarProps {
   title: string;
@@ -50,10 +34,6 @@ export function TopBar({ title, onBack, right }: TopBarProps) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Empty State
-// ──────────────────────────────────────────────
-
 interface EmptyStateProps {
   icon?: string;
   title: string;
@@ -71,10 +51,6 @@ export function EmptyState({ icon = '🌸', title, description, action }: EmptyS
     </div>
   );
 }
-
-// ──────────────────────────────────────────────
-// Error Banner
-// ──────────────────────────────────────────────
 
 interface ErrorBannerProps {
   message: string;
@@ -101,10 +77,6 @@ export function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Main Action Button (fixed at bottom)
-// ──────────────────────────────────────────────
-
 interface MainBtnProps {
   label: string;
   onClick: () => void;
@@ -127,10 +99,6 @@ export function MainBtn({ label, onClick, loading, disabled, variant = 'primary'
   );
 }
 
-// ──────────────────────────────────────────────
-// Toggle
-// ──────────────────────────────────────────────
-
 interface ToggleProps {
   on: boolean;
   onChange: (val: boolean) => void;
@@ -149,10 +117,6 @@ export function Toggle({ on, onChange }: ToggleProps) {
   );
 }
 
-// ──────────────────────────────────────────────
-// Badge
-// ──────────────────────────────────────────────
-
 interface BadgeProps {
   variant: 'active' | 'expired' | 'inactive' | 'demo';
   children: ReactNode;
@@ -161,10 +125,6 @@ interface BadgeProps {
 export function Badge({ variant, children }: BadgeProps) {
   return <span className={`badge ${variant}`}>{children}</span>;
 }
-
-// ──────────────────────────────────────────────
-// SBP Badge
-// ──────────────────────────────────────────────
 
 export function SbpBadge() {
   return (
@@ -175,25 +135,13 @@ export function SbpBadge() {
   );
 }
 
-// ──────────────────────────────────────────────
-// Section Title
-// ──────────────────────────────────────────────
-
 export function SectionTitle({ children }: { children: ReactNode }) {
   return <div className="h-section">{children}</div>;
 }
 
-// ──────────────────────────────────────────────
-// Divider
-// ──────────────────────────────────────────────
-
 export function Divider() {
   return <div className="divider" />;
 }
-
-// ──────────────────────────────────────────────
-// Info Banner
-// ──────────────────────────────────────────────
 
 interface InfoBannerProps {
   type: 'info' | 'warning' | 'error';

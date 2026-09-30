@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * Расширенная информация о тарифе для дашборда создателя (включает аналитику по подписчикам и выручке).
+ * Расширенная информация о тарифе для аналитики дашборда.
  */
 @Data
 @Builder
@@ -25,5 +25,5 @@ public class SubscriptionPlanExtendedDto {
     private Integer periodDays;
     private Boolean isActive;
     private Integer subscribersCount;
-    private BigDecimal revenueTotal;
+    private BigDecimal totalRevenueRub;
 }

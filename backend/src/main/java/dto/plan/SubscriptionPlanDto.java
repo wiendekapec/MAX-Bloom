@@ -23,7 +23,7 @@ public class SubscriptionPlanDto {
     private String description;
     private BigDecimal priceRub;
     /**
-     * Период в днях: 0 = разово, 7, 30, 90 дней.
+     * Период в днях.
      */
     private Integer periodDays;
     private Boolean isActive;

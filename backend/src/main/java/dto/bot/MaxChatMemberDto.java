@@ -29,7 +29,7 @@ public class MaxChatMemberDto {
     private Boolean addRemoveMembers;
 
     /**
-     * Имеет ли бот право управлять участниками для кика неплательщиков.
+     * Проверка наличия прав на исключение участников.
      */
     public boolean hasKickPermission() {
         return Boolean.TRUE.equals(canManageMembers) || Boolean.TRUE.equals(addRemoveMembers);

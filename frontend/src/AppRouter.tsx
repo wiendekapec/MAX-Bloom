@@ -1,11 +1,6 @@
-/**
- * AppRouter — screen switching + role tabs
- */
-
 import { useNav, type Screen } from './contexts/NavContext';
 import { hapticLight } from './lib/maxBridge';
 
-// Screens
 import CreatorDashboard from './screens/CreatorDashboard';
 import NewPlanScreen from './screens/NewPlanScreen';
 import CatalogScreen from './screens/CatalogScreen';
@@ -20,7 +15,6 @@ interface AppRouterProps {
   initialParams?: Record<string, unknown>;
 }
 
-// Screens that show the role switcher tabs
 const SCREENS_WITH_TABS: Screen[] = ['dashboard', 'catalog', 'my-subscriptions'];
 
 export default function AppRouter({ initialParams: _initialParams }: AppRouterProps) {
@@ -36,7 +30,6 @@ export default function AppRouter({ initialParams: _initialParams }: AppRouterPr
 
   return (
     <>
-      {/* Role tabs — shown only on top-level screens */}
       {showTabs && (
         <div className="role-tabs">
           <button
@@ -63,7 +56,6 @@ export default function AppRouter({ initialParams: _initialParams }: AppRouterPr
         </div>
       )}
 
-      {/* Screen rendering */}
       {screen === 'dashboard' && <CreatorDashboard />}
       {screen === 'new-plan' && <NewPlanScreen />}
       {screen === 'catalog' && <CatalogScreen />}

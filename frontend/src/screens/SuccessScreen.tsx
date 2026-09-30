@@ -1,8 +1,3 @@
-/**
- * SuccessScreen — оплата прошла
- * US-4.3, US-5.1, US-5.2
- */
-
 import { useNav } from '../contexts/NavContext';
 import { type Community, type SubscriptionPlan } from '../lib/api';
 import { formatDate, formatPeriod, formatRub } from '../lib/helpers';
@@ -15,7 +10,6 @@ export default function SuccessScreen() {
   const inviteUrl = current.params?.inviteUrl as string | undefined;
   const expiresAt = current.params?.expiresAt as string | undefined;
 
-  // Fallback invite URL for demo
   const demoInviteUrl = 'https://bloom.example/i/7f3a-b4c2-demo';
 
   const displayUrl = inviteUrl ?? demoInviteUrl;
@@ -45,7 +39,6 @@ export default function SuccessScreen() {
         {' '}Ссылка для вступления действует 24 часа — также отправлена в чат с ботом.
       </div>
 
-      {/* Invite link box */}
       <div className="invite-box" style={{ marginTop: 24 }}>
         <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
           Ссылка для вступления
@@ -56,7 +49,6 @@ export default function SuccessScreen() {
         </div>
       </div>
 
-      {/* Summary */}
       {plan && (
         <div
           style={{
@@ -84,7 +76,6 @@ export default function SuccessScreen() {
         </div>
       )}
 
-      {/* Actions */}
       <div className="result-actions">
         <button
           id="success-join"

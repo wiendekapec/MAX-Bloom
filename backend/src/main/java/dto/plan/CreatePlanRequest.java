@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * Запрос на создание нового тарифа подписки.
- * Валидация входных данных для защиты от некорректных и вредоносных значений.
+ * Запрос на создание нового тарифного плана.
  */
 @Data
 @Builder
@@ -31,7 +30,7 @@ public class CreatePlanRequest {
     private BigDecimal priceRub;
 
     /**
-     * Период доступа в днях: 0 (разово), 7, 30, 90, до 365 дней.
+     * Период доступа в днях.
      */
     @NotNull(message = "Период доступа обязателен")
     @Min(value = 0, message = "Период не может быть отрицательным")
@@ -39,7 +38,7 @@ public class CreatePlanRequest {
     private Integer periodDays;
 
     /**
-     * Декларация статуса самозанятого/ИП по ФЗ-54. Без подтверждения тариф не активируется.
+     * Подтверждение статуса самозанятого.
      */
     private Boolean selfEmployedConfirmed;
 }

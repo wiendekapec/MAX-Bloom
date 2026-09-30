@@ -1,6 +1,3 @@
-/**
- * Toast context — lightweight in-app notifications
- */
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
 interface ToastItem {

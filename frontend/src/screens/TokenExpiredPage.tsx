@@ -1,9 +1,3 @@
-/**
- * TokenExpiredPage — страница для /i/{token} когда токен устарел
- * US-5.2 — redirect endpoint error state
- * Это отдельная HTML-страница (не мини-апп), открывается в браузере
- */
-
 export default function TokenExpiredPage() {
   const BOT_LINK = 'https://max.ru/MaxBloomBot';
 

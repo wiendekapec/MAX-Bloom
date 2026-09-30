@@ -61,7 +61,7 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Тариф не найден: " + planId));
 
         if (!plan.getIsActive()) {
-            throw new IllegalStateException("Тариф не активен для покупки");
+            throw new IllegalStateException("PLAN_INACTIVE");
         }
 
         BigDecimal fee = plan.getPrice().multiply(platformCommissionRate).setScale(2, RoundingMode.HALF_UP);
@@ -91,6 +91,32 @@ public class PaymentService {
         paymentRepository.save(payment);
 
         return new CreatePaymentResponse(payment.getId().toString(), ykResp.getConfirmationUrl());
+    }
+
+    /**
+     * Создание или получение существующего незавершенного (PENDING) платежа за тарифный план.
+     */
+    @Transactional
+    public CreatePaymentResponse createOrGetPending(User user, Long planId) {
+        SubscriptionPlan plan = planRepository.findById(planId)
+                .orElseThrow(() -> new IllegalArgumentException("Тариф не найден: " + planId));
+
+        if (!plan.getIsActive()) {
+            throw new IllegalStateException("PLAN_INACTIVE");
+        }
+
+        Optional<Payment> existingPending = paymentRepository.findFirstPendingByUserAndPlan(user.getId(), planId);
+        if (existingPending.isPresent()) {
+            Payment p = existingPending.get();
+            if (p.getYukassaPaymentId() != null) {
+                String confirmUrl = yukassaClient.getConfirmationUrl(p.getYukassaPaymentId());
+                if (confirmUrl != null && !confirmUrl.isBlank()) {
+                    return new CreatePaymentResponse(p.getId().toString(), confirmUrl);
+                }
+            }
+        }
+
+        return createPayment(user, planId, null);
     }
 
     /**

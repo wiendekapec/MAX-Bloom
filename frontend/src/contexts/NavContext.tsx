@@ -1,19 +1,15 @@
-/**
- * App-wide navigation context
- * Simple stack-based router for mini-app (no URL routing needed)
- */
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
 export type Screen =
-  | 'dashboard'       // creator: main dashboard
-  | 'new-plan'        // creator: create tariff form
-  | 'catalog'         // buyer: community list
-  | 'community'       // buyer: community detail + plan selection
-  | 'checkout'        // buyer: payment summary
-  | 'waiting'         // buyer: waiting for payment confirmation
-  | 'success'         // buyer: payment success
-  | 'payment-error'   // buyer: payment error
-  | 'my-subscriptions'; // buyer: my active subscriptions
+  | 'dashboard'
+  | 'new-plan'
+  | 'catalog'
+  | 'community'
+  | 'checkout'
+  | 'waiting'
+  | 'success'
+  | 'payment-error'
+  | 'my-subscriptions';
 
 export interface NavState {
   screen: Screen;

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MaxWebhookEventDto {
     /**
-     * Тип события: message_created, message_callback, bot_added, bot_removed, user_added.
+     * Тип события.
      */
     @JsonProperty("event_type")
     private String eventType;
@@ -41,7 +41,7 @@ public class MaxWebhookEventDto {
     private Long timestamp;
 
     /**
-     * Вспомогательный метод для получения реального типа события независимо от формата.
+     * Определение типа входящего события.
      */
     public String resolveEventType() {
         if (eventType != null && !eventType.isBlank()) {

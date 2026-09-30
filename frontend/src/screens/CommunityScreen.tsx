@@ -1,8 +1,3 @@
-/**
- * CommunityScreen — карточка сообщества + выбор тарифа
- * US-4.1
- */
-
 import { useState } from 'react';
 import { TopBar, MainBtn } from '../components/ui';
 import { useNav } from '../contexts/NavContext';
@@ -16,7 +11,6 @@ export default function CommunityScreen() {
   const community = (current.params?.community as Community | undefined)
     ?? DEMO_COMMUNITIES.find((c) => c.id === communityId);
 
-  // Pre-select plan from deep link (?start=plan_42) if passed via params
   const preselectedPlan = current.params?.selectedPlan as SubscriptionPlan | undefined;
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(
     preselectedPlan ?? community?.plans?.[0] ?? null
@@ -45,7 +39,6 @@ export default function CommunityScreen() {
     <div className="screen fade-in" style={{ padding: '0 16px 110px' }}>
       <TopBar title="" onBack={goBack} />
 
-      {/* Hero */}
       <div
         className="hero-banner"
         style={{ background: CATEGORY_GRADIENTS[community.category] }}
@@ -54,7 +47,6 @@ export default function CommunityScreen() {
         <span className="hero-emoji">{CATEGORY_EMOJIS[community.category]}</span>
       </div>
 
-      {/* Title */}
       <h1 className="h-display" style={{ fontSize: 22, marginBottom: 8 }}>
         {community.title}
       </h1>
@@ -62,7 +54,6 @@ export default function CommunityScreen() {
         {community.description}
       </p>
 
-      {/* Stats row */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
         <div style={{
           flex: 1, background: 'var(--glass)', border: '1px solid var(--glass-b)',
@@ -84,7 +75,6 @@ export default function CommunityScreen() {
         </div>
       </div>
 
-      {/* Plans */}
       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>
         Выберите тариф
       </div>

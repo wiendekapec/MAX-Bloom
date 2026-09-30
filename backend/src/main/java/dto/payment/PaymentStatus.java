@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Статусы платежей (соответствуют жизненному циклу ЮKassa и платформы).
+ * Статусы платежей.
  */
 public enum PaymentStatus {
     PENDING("PENDING"),

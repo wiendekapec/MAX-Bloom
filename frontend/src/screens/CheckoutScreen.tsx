@@ -1,8 +1,3 @@
-/**
- * CheckoutScreen — сводка перед оплатой
- * US-4.2
- */
-
 import { useState } from 'react';
 import { TopBar, SbpBadge, MainBtn } from '../components/ui';
 import { useNav } from '../contexts/NavContext';
@@ -36,10 +31,8 @@ export default function CheckoutScreen() {
       const res = await api.createPayment(plan.id);
       const { paymentId, confirmationUrl } = res.data;
 
-      // Open ЮKassa confirmation page
       MaxBridge.openLink(confirmationUrl);
 
-      // Navigate to waiting screen
       navigate('waiting', {
         paymentId,
         community,
@@ -66,7 +59,6 @@ export default function CheckoutScreen() {
       <TopBar title="Оформление" onBack={goBack} />
 
       <div style={{ paddingTop: 8 }}>
-        {/* Community header */}
         <div
           className="card"
           style={{
@@ -81,7 +73,6 @@ export default function CheckoutScreen() {
           <div style={{ fontSize: 18, fontWeight: 700 }}>{community.title}</div>
         </div>
 
-        {/* Order summary */}
         <div className="card">
           <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
             {plan.title}
@@ -116,7 +107,6 @@ export default function CheckoutScreen() {
           <SbpBadge />
         </div>
 
-        {/* Info */}
         <div style={{
           background: 'var(--glass)',
           border: '1px solid var(--glass-b)',
@@ -134,7 +124,6 @@ export default function CheckoutScreen() {
             : `${formatPeriod(plan.periodDays)} с момента оплаты`}.
         </div>
 
-        {/* Error */}
         {error && (
           <div className="info-banner error" style={{ marginBottom: 8 }}>
             <span>⚠️</span>
@@ -142,7 +131,6 @@ export default function CheckoutScreen() {
           </div>
         )}
 
-        {/* ЮKassa sandbox notice */}
         <div style={{
           textAlign: 'center', fontSize: 11.5, color: 'var(--muted)', paddingBottom: 24, lineHeight: 1.5,
         }}>

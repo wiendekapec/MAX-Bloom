@@ -1,12 +1,8 @@
-/* ============================
-   MAX Bloom — Design System
-   ============================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Colors */
-  --bg-1: #0D1E18;
+    --bg-1: #0D1E18;
   --bg-2: #152C22;
   --bg-3: #1A3429;
   --glass: rgba(255, 255, 255, 0.06);
@@ -27,23 +23,19 @@
   --success: #4ECDC4;
   --warning: #F5C84A;
 
-  /* Radius */
-  --radius-sm: 10px;
+    --radius-sm: 10px;
   --radius: 18px;
   --radius-lg: 24px;
   --radius-full: 100px;
 
-  /* Spacing */
-  --safe-top: env(safe-area-inset-top, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* Shadows */
-  --shadow-bloom: 0 8px 32px rgba(255, 111, 142, 0.30);
+    --shadow-bloom: 0 8px 32px rgba(255, 111, 142, 0.30);
   --shadow-sage: 0 4px 16px rgba(159, 216, 181, 0.20);
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.30);
 
-  /* Typography */
-  --font-display: 'Unbounded', sans-serif;
+    --font-display: 'Unbounded', sans-serif;
   --font-body: 'Manrope', system-ui, sans-serif;
 }
 
@@ -55,8 +47,7 @@
 
 html {
   min-height: 100%;
-  /* Фон прибит к вьюпорту и не обрезается при скролле */
-  background-color: var(--bg-1);
+    background-color: var(--bg-1);
   background-image:
     radial-gradient(ellipse 100% 50% at 50% 0%, var(--bg-3) 0%, transparent 65%),
     radial-gradient(ellipse 50% 40% at 95% 90%, rgba(255, 111, 142, 0.08) 0%, transparent 60%);
@@ -100,16 +91,12 @@ input, textarea, select {
   outline: none;
 }
 
-/* ===========================
-   Layout
-   =========================== */
 
 .app-container {
   width: 100%;
   max-width: 430px;
   min-height: 100vh;
-  /* Центруем относительно прозрачного html, с лёгким backdrop для текста */
-  background-color: transparent;
+    background-color: transparent;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -122,14 +109,9 @@ input, textarea, select {
   display: flex;
   flex-direction: column;
   padding: 0 16px calc(var(--safe-bottom) + 100px);
-  /* Скролл на уровне страницы (html), а не внутри .screen —
-     это нужно чтобы background-attachment:fixed работал корректно */
-  -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* ===========================
-   Typography
-   =========================== */
 
 .h-display {
   font-family: var(--font-display);
@@ -147,9 +129,6 @@ input, textarea, select {
   margin: 20px 0 10px;
 }
 
-/* ===========================
-   Cards & Glassmorphism
-   =========================== */
 
 .card {
   background: var(--glass);
@@ -176,9 +155,6 @@ input, textarea, select {
   background: rgba(255, 111, 142, 0.10);
 }
 
-/* ===========================
-   Buttons
-   =========================== */
 
 .btn {
   display: inline-flex;
@@ -256,9 +232,6 @@ input, textarea, select {
   border-radius: var(--radius-sm);
 }
 
-/* ===========================
-   Main Action Button (fixed)
-   =========================== */
 
 .main-btn-wrap {
   position: fixed;
@@ -282,9 +255,6 @@ input, textarea, select {
   border-radius: var(--radius);
 }
 
-/* ===========================
-   Header / TopBar
-   =========================== */
 
 .topbar {
   display: flex;
@@ -294,8 +264,7 @@ input, textarea, select {
   position: sticky;
   top: 0;
   z-index: 20;
-  /* Полупрозрачный фон с размытием вместо solid-цвета */
-  background: rgba(13, 30, 24, 0.85);
+    background: rgba(13, 30, 24, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -326,9 +295,6 @@ input, textarea, select {
   background: var(--glass-hover);
 }
 
-/* ===========================
-   Stat Cards (Dashboard)
-   =========================== */
 
 .stat-grid {
   display: grid;
@@ -371,9 +337,6 @@ input, textarea, select {
   line-height: 1.3;
 }
 
-/* ===========================
-   Payment Row
-   =========================== */
 
 .pay-row {
   display: flex;
@@ -421,9 +384,6 @@ input, textarea, select {
 .pay-status.pending { background: rgba(245, 200, 74, 0.15); color: var(--warning); }
 .pay-status.canceled { background: rgba(255, 107, 107, 0.15); color: var(--error); }
 
-/* ===========================
-   Plan Row (creator tariff list)
-   =========================== */
 
 .plan-row {
   display: flex;
@@ -450,9 +410,6 @@ input, textarea, select {
   margin-top: 3px;
 }
 
-/* ===========================
-   Toggle Switch
-   =========================== */
 
 .toggle {
   width: 44px;
@@ -485,9 +442,6 @@ input, textarea, select {
   left: 3px;
 }
 
-/* ===========================
-   Community Card (Catalog)
-   =========================== */
 
 .community-card {
   background: var(--glass);
@@ -561,9 +515,6 @@ input, textarea, select {
   border: 1px solid rgba(159, 216, 181, 0.2);
 }
 
-/* ===========================
-   Plan Card (Buyer)
-   =========================== */
 
 .plan-card {
   background: var(--glass);
@@ -612,9 +563,6 @@ input, textarea, select {
   white-space: nowrap;
 }
 
-/* ===========================
-   Checkout Summary
-   =========================== */
 
 .sum-row {
   display: flex;
@@ -648,9 +596,6 @@ input, textarea, select {
   margin-top: 14px;
 }
 
-/* ===========================
-   Forms
-   =========================== */
 
 .field {
   margin-bottom: 16px;
@@ -700,7 +645,6 @@ input, textarea, select {
   margin-top: 6px;
 }
 
-/* Period chips */
 .period-chips {
   display: flex;
   gap: 8px;
@@ -730,7 +674,6 @@ input, textarea, select {
   color: #1A0D12;
 }
 
-/* Checkbox */
 .checkbox-row {
   display: flex;
   gap: 12px;
@@ -758,9 +701,6 @@ input, textarea, select {
   text-decoration: underline;
 }
 
-/* ===========================
-   Success / Error Screens
-   =========================== */
 
 .result-screen {
   flex: 1;
@@ -817,7 +757,6 @@ input, textarea, select {
   margin-top: 32px;
 }
 
-/* Invite link box */
 .invite-box {
   background: rgba(159, 216, 181, 0.08);
   border: 1px solid rgba(159, 216, 181, 0.25);
@@ -843,9 +782,6 @@ input, textarea, select {
   margin-top: 6px;
 }
 
-/* ===========================
-   Loading States
-   =========================== */
 
 .skeleton {
   background: linear-gradient(90deg, var(--glass) 25%, var(--glass-hover) 50%, var(--glass) 75%);
@@ -879,9 +815,6 @@ input, textarea, select {
   border-width: 2px;
 }
 
-/* ===========================
-   Toast
-   =========================== */
 
 .toast {
   position: fixed;
@@ -907,9 +840,6 @@ input, textarea, select {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ===========================
-   Role Switch (top tabs)
-   =========================== */
 
 .role-tabs {
   display: flex;
@@ -937,9 +867,6 @@ input, textarea, select {
   border-color: var(--bloom);
 }
 
-/* ===========================
-   Hero Banner
-   =========================== */
 
 .hero-banner {
   height: 140px;
@@ -965,9 +892,6 @@ input, textarea, select {
   background: linear-gradient(to top, rgba(13, 30, 24, 0.7) 0%, transparent 60%);
 }
 
-/* ===========================
-   FAB Button
-   =========================== */
 
 .fab {
   position: fixed;
@@ -999,9 +923,6 @@ input, textarea, select {
   transform: scale(0.96);
 }
 
-/* ===========================
-   Status Dots & Badges
-   =========================== */
 
 .status-dot {
   width: 8px;
@@ -1029,9 +950,6 @@ input, textarea, select {
 .badge.inactive { background: rgba(255, 255, 255, 0.08); color: var(--muted); }
 .badge.demo { background: rgba(245, 200, 74, 0.15); color: var(--gold); border: 1px solid rgba(245, 200, 74, 0.2); }
 
-/* ===========================
-   Subscription Row
-   =========================== */
 
 .sub-row {
   display: flex;
@@ -1071,9 +989,6 @@ input, textarea, select {
   flex-shrink: 0;
 }
 
-/* ===========================
-   Warning / Info Banners
-   =========================== */
 
 .info-banner {
   display: flex;
@@ -1108,9 +1023,6 @@ input, textarea, select {
   flex-shrink: 0;
 }
 
-/* ===========================
-   Error Boundary
-   =========================== */
 
 .error-boundary {
   flex: 1;
@@ -1122,9 +1034,6 @@ input, textarea, select {
   text-align: center;
 }
 
-/* ===========================
-   Waiting / Polling
-   =========================== */
 
 .waiting-screen {
   flex: 1;
@@ -1149,9 +1058,6 @@ input, textarea, select {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* ===========================
-   Empty State
-   =========================== */
 
 .empty-state {
   display: flex;
@@ -1181,9 +1087,6 @@ input, textarea, select {
   max-width: 260px;
 }
 
-/* ===========================
-   Divider
-   =========================== */
 
 .divider {
   height: 1px;
@@ -1191,9 +1094,6 @@ input, textarea, select {
   margin: 4px 0;
 }
 
-/* ===========================
-   Animations
-   =========================== */
 
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -1232,26 +1132,17 @@ input, textarea, select {
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* ===========================
-   Scrollbar
-   =========================== */
 
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-/* ===========================
-   Safe Area utilities
-   =========================== */
 
 .pb-safe {
   padding-bottom: calc(var(--safe-bottom) + 16px);
 }
 
-/* ===========================
-   Utilities
-   =========================== */
 
 .flex { display: flex; }
 .flex-col { display: flex; flex-direction: column; }

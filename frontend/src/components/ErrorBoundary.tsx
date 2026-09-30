@@ -1,6 +1,3 @@
-/**
- * ErrorBoundary — wraps the entire app per spec NFT-12
- */
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface Props {
@@ -23,7 +20,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    // In production: send to Sentry / backend logging
     console.error('[ErrorBoundary]', error, info.componentStack);
   }
 

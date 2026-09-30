@@ -1,14 +1,3 @@
-/**
- * App.tsx — Root component
- *
- * Определяет начальный экран по параметру запуска из MAX Bridge:
- * - пусто → каталог (buyer flow)
- * - plan_{id} → карточка тарифа
- * - dashboard → дашборд крейтора
- *
- * [СВЕРИТЬ] реальный способ получения start-параметра в мини-аппе MAX
- */
-
 import { useEffect, useState } from 'react';
 import { NavProvider, type Screen } from './contexts/NavContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -18,8 +7,6 @@ import { DEMO_COMMUNITIES } from './lib/api';
 import AppRouter from './AppRouter';
 
 function detectInitialScreen(): { screen: Screen; params?: Record<string, unknown> } {
-  // Try to get start param from MAX Bridge
-  // MAX may pass it as hash, query param, or via initData
   const hash = window.location.hash.slice(1);
   const search = new URLSearchParams(window.location.search);
   const startParam = hash || search.get('start') || search.get('startapp') || '';
@@ -32,7 +19,6 @@ function detectInitialScreen(): { screen: Screen; params?: Record<string, unknow
     const planIdStr = startParam.replace('plan_', '');
     const planId = parseInt(planIdStr, 10);
     if (!isNaN(planId)) {
-      // Find community containing this plan
       const community = DEMO_COMMUNITIES.find((c) =>
         c.plans.some((p) => p.id === planId)
       );
@@ -43,7 +29,6 @@ function detectInitialScreen(): { screen: Screen; params?: Record<string, unknow
     }
   }
 
-  // Default: catalog
   return { screen: 'catalog' };
 }
 

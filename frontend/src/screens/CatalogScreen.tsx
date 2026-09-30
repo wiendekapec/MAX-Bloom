@@ -1,9 +1,3 @@
-/**
- * CatalogScreen — каталог сообществ (демо-заглушка)
- * US-4.1, Could have per spec section 4
- * Явно помечено как демо-данные
- */
-
 import { useState } from 'react';
 import { useNav } from '../contexts/NavContext';
 import { DEMO_COMMUNITIES, type Community, type CommunityCategory } from '../lib/api';
@@ -33,7 +27,6 @@ export default function CatalogScreen() {
 
   return (
     <div className="screen fade-in">
-      {/* Demo data notice */}
       <div
         style={{
           display: 'flex',
@@ -48,7 +41,6 @@ export default function CatalogScreen() {
         <span>Примеры — для иллюстрации возможностей</span>
       </div>
 
-      {/* Category filter chips */}
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 12, paddingTop: 4 }}>
         <div
           className={`chip ${activeCategory === null ? 'active' : ''}`}
@@ -69,7 +61,6 @@ export default function CatalogScreen() {
         ))}
       </div>
 
-      {/* Community cards */}
       {filtered.map((c) => (
         <div
           key={c.id}
@@ -77,7 +68,6 @@ export default function CatalogScreen() {
           id={`catalog-community-${c.id}`}
           onClick={() => handleCommunityTap(c)}
         >
-          {/* Banner */}
           <div
             className="community-banner"
             style={{ background: CATEGORY_GRADIENTS[c.category] }}
@@ -86,7 +76,6 @@ export default function CatalogScreen() {
             <span className="hero-emoji">{CATEGORY_EMOJIS[c.category]}</span>
           </div>
 
-          {/* Body */}
           <div className="community-body">
             <div className="community-title">{c.title}</div>
             <div className="community-desc" style={{ WebkitLineClamp: 2, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -103,7 +92,6 @@ export default function CatalogScreen() {
               </div>
             </div>
 
-            {/* Plan prices */}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
               {c.plans.slice(0, 2).map((p) => (
                 <span
