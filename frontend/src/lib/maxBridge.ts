@@ -35,9 +35,30 @@ interface MaxBridgeSDK {
   ready: () => void;
 }
 
-const _raw = (window as unknown as { MaxApp?: MaxBridgeSDK; Telegram?: { WebApp?: MaxBridgeSDK } }).MaxApp ?? (window as unknown as { MaxApp?: MaxBridgeSDK; Telegram?: { WebApp?: MaxBridgeSDK } }).Telegram?.WebApp ?? null;
+function getRaw(): MaxBridgeSDK | null {
+  const w = window as unknown as { MaxApp?: MaxBridgeSDK; Telegram?: { WebApp?: MaxBridgeSDK } };
+  return w.MaxApp ?? w.Telegram?.WebApp ?? null;
+}
 
-const IS_MAX = Boolean(_raw);
+function getUrlInitData(): string {
+  try {
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const data = params.get('tgWebAppData') || params.get('maxWebAppData') || params.get('initData');
+      if (data) return data;
+      if (hash.includes('hash=') && hash.includes('user=')) return hash;
+    }
+    if (window.location.search) {
+      const params = new URLSearchParams(window.location.search);
+      const data = params.get('tgWebAppData') || params.get('maxWebAppData') || params.get('initData');
+      if (data) return data;
+    }
+  } catch {
+    return '';
+  }
+  return '';
+}
 
 const stub: MaxBridgeSDK = {
   init: () => {
@@ -89,7 +110,44 @@ const stub: MaxBridgeSDK = {
   ready: () => {},
 };
 
-export const MaxBridge: MaxBridgeSDK = IS_MAX ? (_raw as MaxBridgeSDK) : stub;
+export const MaxBridge: MaxBridgeSDK = {
+  init: () => {
+    const raw = getRaw();
+    raw?.init?.();
+    raw?.ready?.();
+    raw?.expand?.();
+  },
+  get initData() {
+    const raw = getRaw();
+    if (raw?.initData) return raw.initData;
+    const urlData = getUrlInitData();
+    if (urlData) return urlData;
+    return stub.initData;
+  },
+  MainButton: {
+    setText: (t) => (getRaw()?.MainButton?.setText ?? stub.MainButton.setText)(t),
+    show: () => (getRaw()?.MainButton?.show ?? stub.MainButton.show)(),
+    hide: () => (getRaw()?.MainButton?.hide ?? stub.MainButton.hide)(),
+    enable: () => (getRaw()?.MainButton?.enable ?? stub.MainButton.enable)(),
+    disable: () => (getRaw()?.MainButton?.disable ?? stub.MainButton.disable)(),
+    showProgress: (l) => (getRaw()?.MainButton?.showProgress ?? stub.MainButton.showProgress)(l),
+    hideProgress: () => (getRaw()?.MainButton?.hideProgress ?? stub.MainButton.hideProgress)(),
+    onClick: (cb) => (getRaw()?.MainButton?.onClick ?? stub.MainButton.onClick)(cb),
+    offClick: (cb) => (getRaw()?.MainButton?.offClick ?? stub.MainButton.offClick)(cb),
+  },
+  HapticFeedback: {
+    impactOccurred: (s) => (getRaw()?.HapticFeedback?.impactOccurred ?? stub.HapticFeedback.impactOccurred)(s),
+    notificationOccurred: (t) => (getRaw()?.HapticFeedback?.notificationOccurred ?? stub.HapticFeedback.notificationOccurred)(t),
+    selectionChanged: () => (getRaw()?.HapticFeedback?.selectionChanged ?? stub.HapticFeedback.selectionChanged)(),
+  },
+  get ThemeParams() {
+    return getRaw()?.ThemeParams ?? stub.ThemeParams;
+  },
+  close: () => (getRaw()?.close ?? stub.close)(),
+  openLink: (url) => (getRaw()?.openLink ?? stub.openLink)(url),
+  expand: () => (getRaw()?.expand ?? stub.expand)(),
+  ready: () => (getRaw()?.ready ?? stub.ready)(),
+};
 
 export function initMaxBridge() {
   MaxBridge.init?.();
