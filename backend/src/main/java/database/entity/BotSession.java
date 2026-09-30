@@ -27,21 +27,19 @@ public class BotSession {
     private String maxUserId;
 
     /**
-     * Текущее состояние FSM (например, "ASK_TITLE").
+     * Текущее состояние FSM онбординга.
      */
     @Column(name = "state", nullable = false, length = 64)
     private String state;
 
     /**
-     * JSON-сериализованный черновик (название, описание, цена, категория и т.д.).
-     * Тип: TEXT — не JSONB, чтобы не создавать зависимость от диалекта Postgres в коде.
+     * Сериализованный черновик данных сообщества и тарифа.
      */
     @Column(name = "draft_json", columnDefinition = "TEXT")
     private String draftJson;
 
     /**
-     * maxChatId канала, ожидающего привязки бота (состояние WAIT_BOT_ADDED).
-     * Индексируется для быстрого поиска при получении события bot_added.
+     * Идентификатор чата, ожидающего привязки бота.
      */
     @Column(name = "pending_chat_id", length = 64)
     private String pendingChatId;
