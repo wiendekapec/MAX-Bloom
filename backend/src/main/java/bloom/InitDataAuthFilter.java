@@ -30,8 +30,10 @@ public class InitDataAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
         String path = request.getRequestURI();
-
         return !path.startsWith("/api/");
     }
 
@@ -39,6 +41,11 @@ public class InitDataAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         String clientIp = extractClientIp(request);
         if (!rateLimitService.tryConsume(clientIp)) {
@@ -49,28 +56,19 @@ public class InitDataAuthFilter extends OncePerRequestFilter {
         }
 
         String initData = request.getHeader("X-Init-Data");
-        if (initData == null || initData.isBlank()) {
-            sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    "UNAUTHORIZED_INIT_DATA", "Missing X-Init-Data header");
-            return;
+        if (initData != null && !initData.isBlank()) {
+            try {
+                String maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
+                var auth = new UsernamePasswordAuthenticationToken(
+                        maxUserId,
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                );
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (Exception e) {
+                log.warn("InitData verification failed: {}", e.getMessage());
+            }
         }
-
-        String maxUserId;
-        try {
-            maxUserId = initDataVerifier.verifyAndExtractUserId(initData);
-        } catch (SecurityException e) {
-            log.warn("InitData HMAC verification failed: {}", e.getMessage());
-            sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    "UNAUTHORIZED_INIT_DATA", e.getMessage());
-            return;
-        }
-
-        var auth = new UsernamePasswordAuthenticationToken(
-                maxUserId,
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
-        SecurityContextHolder.getContext().setAuthentication(auth);
 
         chain.doFilter(request, response);
     }
