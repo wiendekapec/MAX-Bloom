@@ -44,6 +44,7 @@ public class GlobalExceptionHandler {
         String detail = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.joining("; "));
+        log.warn("Validation error: {}", detail);
         return error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", detail);
     }
 
@@ -51,6 +52,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetailDto> handleMissingHeader(org.springframework.web.bind.MissingRequestHeaderException ex) {
         log.warn("Missing request header: {}", ex.getHeaderName());
         return error(HttpStatus.BAD_REQUEST, "MISSING_HEADER", "Missing required header: " + ex.getHeaderName());
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    public ResponseEntity<ProblemDetailDto> handleMissingParam(org.springframework.web.bind.MissingServletRequestParameterException ex) {
+        log.warn("Missing request parameter: {}", ex.getParameterName());
+        return error(HttpStatus.BAD_REQUEST, "MISSING_PARAM", "Missing required parameter: " + ex.getParameterName());
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ProblemDetailDto> handleTypeMismatch(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex) {
+        log.warn("Type mismatch for parameter: {} value={}", ex.getName(), ex.getValue());
+        return error(HttpStatus.BAD_REQUEST, "TYPE_MISMATCH", "Invalid parameter: " + ex.getName());
     }
 
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
@@ -61,8 +74,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetailDto> handleGeneric(Exception ex) {
-        log.error("Unhandled exception: {}", ex.getMessage(), ex);
-        return error(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Internal server error");
+        log.error("Unhandled exception [{}]: {}", ex.getClass().getName(), ex.getMessage(), ex);
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Internal server error: " + ex.getMessage());
     }
 
     private ResponseEntity<ProblemDetailDto> error(HttpStatus status, String code, String detail) {

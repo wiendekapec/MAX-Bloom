@@ -47,6 +47,8 @@ public class InitDataAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("Incoming request: {} {}", request.getMethod(), request.getRequestURI());
+
         String clientIp = extractClientIp(request);
         if (!rateLimitService.tryConsume(clientIp)) {
             log.warn("Rate limit exceeded for IP={}", clientIp);

@@ -121,23 +121,31 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const initData = getInitData();
-  config.headers['X-Init-Data'] =
-    initData ||
-    `user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Dev%22%2C%22username%22%3A%22devuser%22%7D&auth_date=${Math.floor(Date.now() / 1000)}&hash=dev_stub_hash`;
+  let initData = getInitData();
+  if (!initData) {
+    initData = `user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Dev%22%2C%22username%22%3A%22devuser%22%7D&auth_date=${Math.floor(Date.now() / 1000)}&hash=dev_stub_hash`;
+  }
+  try {
+    config.headers['X-Init-Data'] = encodeURI(initData);
+  } catch {
+    config.headers['X-Init-Data'] = initData;
+  }
   return config;
 });
 
 apiClient.interceptors.response.use(
   (res) => res,
   (error) => {
-    const problemJson = error?.response?.data;
+    const status = error?.response?.status;
+    const data = error?.response?.data;
+    console.warn('[API Error]', error?.config?.method?.toUpperCase(), error?.config?.url, status, data);
+    const problemJson = data;
     const msg =
       problemJson?.detail ??
       problemJson?.title ??
       error.message ??
       'Произошла ошибка';
-    const code = problemJson?.code ?? error?.response?.status?.toString() ?? 'UNKNOWN';
+    const code = problemJson?.code ?? status?.toString() ?? 'UNKNOWN';
     return Promise.reject({ message: msg, code, raw: error });
   }
 );
