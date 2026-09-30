@@ -14,6 +14,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class MiniAppApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MiniAppApplication.class, args);
+        SpringApplication app = new SpringApplication(MiniAppApplication.class);
+        app.addListeners(new DatabaseUrlConverter());
+        app.run(args);
     }
 }

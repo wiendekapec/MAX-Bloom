@@ -4,7 +4,7 @@ import {
 } from '../components/ui';
 import { useNav } from '../contexts/NavContext';
 import { useToast } from '../contexts/ToastContext';
-import { api, DEMO_DASHBOARD, type DashboardData, type PaymentStatus } from '../lib/api';
+import { api, type DashboardData, type PaymentStatus } from '../lib/api';
 import { formatRub, formatDateTime, formatPeriod, downloadBlob } from '../lib/helpers';
 import { hapticLight, hapticSuccess, hapticMedium } from '../lib/maxBridge';
 
@@ -37,9 +37,14 @@ export default function CreatorDashboard() {
       const res = await api.getDashboard();
       setData(res.data);
       setUseDemo(false);
-    } catch {
-      setData(DEMO_DASHBOARD);
-      setUseDemo(true);
+    } catch (err: unknown) {
+      const errObj = err as { message?: string; code?: string };
+      const msg = errObj?.message ?? 'Сервер недоступен';
+      const code = errObj?.code ?? '';
+      console.error('[Dashboard] load error:', err);
+      setError(`${msg}${code ? ` (${code})` : ''}`);
+      setData(null);
+      setUseDemo(false);
     } finally {
       setLoading(false);
     }
