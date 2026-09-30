@@ -36,6 +36,7 @@ export default function CreatorDashboard() {
     try {
       const res = await api.getDashboard();
       setData(res.data);
+      setUseDemo(false);
     } catch {
       setData(DEMO_DASHBOARD);
       setUseDemo(true);

@@ -54,7 +54,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     /**
      * Расчет суммарной выручки сообщества по статусу платежа.
      */
-    @Query("SELECT coalesce(sum(p.amountRub), 0) FROM Payment p " +
+    @Query("SELECT sum(p.amountRub) FROM Payment p " +
            "WHERE p.plan.community.id = :communityId AND p.status = :status")
     BigDecimal calculateRevenueByCommunityIdAndStatus(
             @Param("communityId") Long communityId,
@@ -63,7 +63,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     /**
      * Расчет выручки сообщества с заданной даты.
      */
-    @Query("SELECT coalesce(sum(p.amountRub), 0) FROM Payment p " +
+    @Query("SELECT sum(p.amountRub) FROM Payment p " +
            "WHERE p.plan.community.id = :communityId AND p.status = :status AND p.createdAt >= :since")
     BigDecimal calculateRevenueSince(
             @Param("communityId") Long communityId,

@@ -72,7 +72,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/communities", "/api/v1/communities/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/plans/**").permitAll()
                 .requestMatchers("/api/v1/payments/return").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/v1/**").permitAll()
+                .anyRequest().permitAll()
             )
             .addFilterBefore(initDataAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

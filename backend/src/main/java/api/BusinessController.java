@@ -102,8 +102,14 @@ public class BusinessController {
         Long communityId = community.getId();
 
         BigDecimal totalRevenue = paymentRepository.calculateRevenueByCommunityIdAndStatus(communityId, PaymentStatus.SUCCEEDED);
+        if (totalRevenue == null) {
+            totalRevenue = BigDecimal.ZERO;
+        }
         Instant thirtyDaysAgo = Instant.now().minus(30, ChronoUnit.DAYS);
         BigDecimal revenueThisMonth = paymentRepository.calculateRevenueSince(communityId, PaymentStatus.SUCCEEDED, thirtyDaysAgo);
+        if (revenueThisMonth == null) {
+            revenueThisMonth = BigDecimal.ZERO;
+        }
         long activeSubs = subscriptionRepository.countByCommunityIdAndStatus(communityId, SubscriptionStatus.ACTIVE);
 
         List<SubscriptionPlan> plans = planRepository.findByCommunityId(communityId);
